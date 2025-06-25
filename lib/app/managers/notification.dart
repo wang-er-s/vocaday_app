@@ -50,7 +50,7 @@ class NotificationService {
     }
   }
 
-  static get _notificationDetails => const NotificationDetails(
+  static NotificationDetails get _notificationDetails => const NotificationDetails(
         android: AndroidNotificationDetails(
           'vocaday-reminder',
           'Vocabulary Reminder',
@@ -94,8 +94,6 @@ class NotificationService {
         body,
         scheduleDaily,
         _notificationDetails,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payload,

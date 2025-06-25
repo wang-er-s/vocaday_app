@@ -10,8 +10,7 @@ class AppTheme {
     cardColor: AppColor().white,
     primaryColor: AppColor().blue,
     primaryColorDark: AppColor().blue700,
-    dialogBackgroundColor: AppColor().white,
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       indicatorColor: AppColor().white,
     ),
     bottomSheetTheme: BottomSheetThemeData(
@@ -37,8 +36,7 @@ class AppTheme {
     cardColor: AppColor().grey900,
     primaryColor: AppColor().blue600,
     primaryColorDark: AppColor().blue400,
-    dialogBackgroundColor: AppColor().black,
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       indicatorColor: AppColor().grey700,
     ),
     bottomSheetTheme: BottomSheetThemeData(

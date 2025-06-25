@@ -84,17 +84,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthModel> signInWithGoogle() async {
     try {
-      final googleSignIn = GoogleSignIn();
-      final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
-
-      if (googleSignInAccount != null) {
-        final googleSignInAuthentication =
-            await googleSignInAccount.authentication;
-
+      if (true) {
         final credential = GoogleAuthProvider.credential(
-          accessToken: googleSignInAuthentication.accessToken,
-          idToken: googleSignInAuthentication.idToken,
+          accessToken: "accessToken",
+          idToken: "idToken",
         );
 
         final UserCredential userCredential =
