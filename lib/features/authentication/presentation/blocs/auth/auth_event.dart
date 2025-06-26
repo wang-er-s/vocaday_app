@@ -8,7 +8,7 @@ sealed class AuthEvent extends Equatable {
 }
 
 final class AuthStateChangedEvent extends AuthEvent {
-  final User? user;
+  final dynamic user;
 
   const AuthStateChangedEvent(this.user);
 

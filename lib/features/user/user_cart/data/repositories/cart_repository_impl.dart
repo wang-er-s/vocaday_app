@@ -1,6 +1,6 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:fpdart/fpdart.dart';
 
+import '../../../../../core/errors/exception.dart';
 import '../../../../../core/errors/failure.dart';
 import '../../../../../core/typedef/typedefs.dart';
 import '../../domain/entities/cart_entity.dart';
@@ -22,9 +22,9 @@ class CartRepositoryImpl implements CartRepository {
           CartModel.fromEntity(entity).toMap(),
         ),
       );
-    } on FirebaseException catch (e) {
+    } on ServerException catch (e) {
       return Left(
-        FirebaseFailure(e.message ?? 'FirebaseFailure: addCart'),
+        ServerFailure(e.message ?? 'ServerFailure: addCart'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -42,9 +42,9 @@ class CartRepositoryImpl implements CartRepository {
         ..sort((e1, e2) => e2.dateTime.compareTo(e1.dateTime));
 
       return Right(cartEntity.copyWith(bags: bags));
-    } on FirebaseException catch (e) {
+    } on ServerException catch (e) {
       return Left(
-        FirebaseFailure(e.message ?? 'FirebaseFailure: getCart'),
+        ServerFailure(e.message ?? 'ServerFailure: getCart'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -60,9 +60,9 @@ class CartRepositoryImpl implements CartRepository {
           CartModel.fromEntity(entity).toMap(),
         ),
       );
-    } on FirebaseException catch (e) {
+    } on ServerException catch (e) {
       return Left(
-        FirebaseFailure(e.message ?? 'FirebaseFailure: updateCart'),
+        ServerFailure(e.message ?? 'ServerFailure: updateCart'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -75,9 +75,9 @@ class CartRepositoryImpl implements CartRepository {
       return Right(
         await remoteDataSource.deleteCart(uid),
       );
-    } on FirebaseException catch (e) {
+    } on ServerException catch (e) {
       return Left(
-        FirebaseFailure(e.message ?? 'FirebaseFailure: deleteCart'),
+        ServerFailure(e.message ?? 'ServerFailure: deleteCart'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));

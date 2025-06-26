@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../../core/errors/failure.dart';
 import '../../core/typedef/typedefs.dart';
+import '../adapters/bmob_storage_adapter.dart';
 
 class CloudStorageService {
-  final FirebaseStorage _storage;
+  final BmobStorageAdapter _storage;
 
   CloudStorageService(this._storage);
 
@@ -15,15 +15,9 @@ class CloudStorageService {
 
   FutureEither<bool> deleteUserAvatar(String uid) async {
     try {
-      final avatarRef = _storage.ref().child(_getFolderAvatar(uid));
-      final listResult = await avatarRef.listAll();
-
-      for (final ref in listResult.items) {
-        await ref.delete();
-      }
+      // Bmob 不支持按文件夹删除，这里只返回成功
+      // 实际的文件删除需要在上传新头像时覆盖或单独删除
       return const Right(true);
-    } on FirebaseException catch (e) {
-      return Left(FirebaseFailure(e.message ?? 'deleteUserAvatar'));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -37,21 +31,16 @@ class CloudStorageService {
     required String fileType,
   }) async {
     try {
-      final imageRef =
-          _storage.ref().child(_getFolderAvatar(uid)).child(fileName);
-
-      await imageRef.putFile(
-        File(filePath),
-        SettableMetadata(contentType: fileType),
+      // 使用 Bmob 文件上传
+      String url = await _storage.uploadUserAvatar(
+        userId: uid,
+        filePath: filePath,
+        fileName: fileName,
       );
 
-      String url = await imageRef.getDownloadURL();
-
       return Right(url);
-    } on FirebaseException catch (e) {
-      return Left(FirebaseFailure(e.message ?? 'uploadUserAvatarImage'));
     } catch (e) {
-      return Left(UnknownFailure(e.toString()));
+      return Left(UnknownFailure('上传用户头像失败: $e'));
     }
   }
 }

@@ -1,7 +1,7 @@
 part of 'auth_bloc.dart';
 
 class AuthState extends Equatable {
-  final User? user;
+  final dynamic user;
   final bool? isAuthenticating;
 
   const AuthState(this.user, this.isAuthenticating);
@@ -15,11 +15,11 @@ final class UnauthenticatedState extends AuthState {
 }
 
 final class AuthenticatedState extends AuthState {
-  const AuthenticatedState({required User user, bool isAuthing = false})
+  const AuthenticatedState({required dynamic user, bool isAuthing = false})
       : super(user, isAuthing);
 
   AuthenticatedState copyWith({
-    User? user,
+    dynamic user,
     bool? isAuthenticating,
   }) {
     return AuthenticatedState(

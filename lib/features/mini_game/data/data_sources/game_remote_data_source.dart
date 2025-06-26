@@ -1,5 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
+import '../../../../app/adapters/bmob_database_adapter.dart';
 import '../../../../core/errors/exception.dart';
 
 abstract class GameRemoteDataSource {
@@ -8,8 +7,8 @@ abstract class GameRemoteDataSource {
 }
 
 class GameRemoteDataSourceImpl implements GameRemoteDataSource {
-  final FirebaseFirestore _db;
-  final String _users = "users";
+  final BmobDatabaseAdapter _db;
+  final String _users = "UserProfile"; // 使用与用户资料相同的表
 
   GameRemoteDataSourceImpl(this._db);
 
@@ -17,10 +16,8 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
   Future<void> updateUserPoint(String uid, Map<String, dynamic> map) async {
     try {
       await _db.collection(_users).doc(uid).update(map);
-    } on FirebaseException {
-      rethrow;
-    } on UnimplementedError catch (e) {
-      throw DatabaseException(e.message ?? '');
+    } catch (e) {
+      throw DatabaseException('更新用户积分失败: $e');
     }
   }
 
@@ -28,10 +25,8 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
   Future<void> updateUserGold(String uid, Map<String, dynamic> map) async {
     try {
       await _db.collection(_users).doc(uid).update(map);
-    } on FirebaseException {
-      rethrow;
-    } on UnimplementedError catch (e) {
-      throw DatabaseException(e.message ?? '');
+    } catch (e) {
+      throw DatabaseException('更新用户金币失败: $e');
     }
   }
 }

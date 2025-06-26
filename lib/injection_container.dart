@@ -1,10 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:connectivity_plus/connectivity_plus.dart";
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import "package:get_it/get_it.dart";
 import "package:shared_preferences/shared_preferences.dart";
+
+import 'app/adapters/bmob_auth_adapter.dart';
+import 'app/adapters/bmob_database_adapter.dart';
+import 'app/adapters/bmob_storage_adapter.dart';
 
 import 'app/managers/api.dart';
 import 'app/managers/cloud_storage.dart';
@@ -22,7 +23,6 @@ import 'features/authentication/domain/usecases/delete_account.dart';
 import 'features/authentication/domain/usecases/re_authentication.dart';
 import 'features/authentication/domain/usecases/send_code_to_email.dart';
 import 'features/authentication/domain/usecases/sign_in_with_email_password.dart';
-import 'features/authentication/domain/usecases/sign_in_with_google.dart';
 import 'features/authentication/domain/usecases/sign_out.dart';
 import 'features/authentication/domain/usecases/sign_up_with_email_password.dart';
 import 'features/authentication/presentation/blocs/auth/auth_bloc.dart';
@@ -79,9 +79,11 @@ Future<void> setUpServiceLocator() async {
   await sl.isReady<SharedPreferences>();
   sl.registerLazySingleton(() => Dio());
   sl.registerLazySingleton(() => Connectivity());
-  sl.registerLazySingleton(() => FirebaseAuth.instance);
-  sl.registerLazySingleton(() => FirebaseFirestore.instance);
-  sl.registerLazySingleton(() => FirebaseStorage.instance);
+  
+  //! Bmob 适配器
+  sl.registerLazySingleton(() => BmobAuthAdapter());
+  sl.registerLazySingleton(() => BmobDatabaseAdapter());
+  sl.registerLazySingleton(() => BmobStorageAdapter());
 
   //! App
   sl.registerLazySingleton(() => SharedPrefManager(sl()));
@@ -150,13 +152,6 @@ Future<void> setUpServiceLocator() async {
     () => SignInWithEmailPasswordUsecase(repository: sl()),
   );
   sl.registerLazySingleton(
-    () => SignInWithGoogleUsecase(
-      authRepository: sl(),
-      userRepository: sl(),
-      cartRepository: sl(),
-    ),
-  );
-  sl.registerLazySingleton(
     () => ReAuthenticationUsecase(sl()),
   );
   sl.registerLazySingleton(
@@ -170,7 +165,7 @@ Future<void> setUpServiceLocator() async {
   );
   // Bloc
   sl.registerFactory(() => AuthBloc(sl(), sl(), sl(), sl(), sl()));
-  sl.registerFactory(() => SignInBloc(sl(), sl()));
+  sl.registerFactory(() => SignInBloc(sl()));
   sl.registerFactory(() => SignUpBloc(sl()));
 
   //! Features - user

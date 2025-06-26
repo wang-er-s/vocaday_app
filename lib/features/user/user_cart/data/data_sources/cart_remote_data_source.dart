@@ -1,5 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
+import '../../../../../app/adapters/bmob_database_adapter.dart';
 import '../../../../../app/constants/app_const.dart';
 import '../../../../../core/errors/exception.dart';
 
@@ -12,71 +11,58 @@ abstract class CartRemoteDataSource {
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
-  final FirebaseFirestore firestore;
-  final String _carts = "carts";
+  final BmobDatabaseAdapter database;
+  final String _carts = "Carts"; // Bmob 表名
 
-  CartRemoteDataSourceImpl(this.firestore);
+  CartRemoteDataSourceImpl(this.database);
 
   @override
   Future<void> createCart(String uid, Map<String, dynamic> map) async {
     try {
-      await firestore.collection(_carts).doc(uid).set(
-            map,
-            SetOptions(merge: true),
-          );
-    } on FirebaseException {
-      rethrow;
-    } on UnimplementedError catch (e) {
-      throw DatabaseException(e.message ?? '');
+            await database.collection(_carts).doc(uid).set(map);
+    } catch (e) {
+      throw DatabaseException('创建购物车失败: $e');
     }
   }
 
   @override
   Future<Map<String, dynamic>> getCart(String uid) async {
     try {
-      final result = await firestore.collection(_carts).doc(uid).get();
-      if (result.exists) {
-        return result.data()!;
+      final result = await database.collection(_carts).doc(uid).get();
+      if (result != null) {
+        return result;
       } else {
         throw DatabaseException(AppStringConst.objectNotFoundMessage);
       }
-    } on FirebaseException {
-      rethrow;
-    } on UnimplementedError catch (e) {
-      throw DatabaseException(e.message ?? '');
+    } catch (e) {
+      throw DatabaseException('获取购物车失败: $e');
     }
   }
 
   @override
   Future<void> clearCart(String uid) async {
     try {
-      await firestore.collection(_carts).doc(uid).update({'bags': []});
-    } on FirebaseException {
-      rethrow;
-    } on UnimplementedError catch (e) {
-      throw DatabaseException(e.message ?? '');
+      await database.collection(_carts).doc(uid).update({'bags': []});
+    } catch (e) {
+      throw DatabaseException('清空购物车失败: $e');
     }
   }
 
   @override
   Future<void> updateCart(String uid, Map<String, dynamic> map) async {
     try {
-      await firestore.collection(_carts).doc(uid).update(map);
-    } on FirebaseException {
-      rethrow;
-    } on UnimplementedError catch (e) {
-      throw DatabaseException(e.message ?? '');
+      await database.collection(_carts).doc(uid).update(map);
+    } catch (e) {
+      throw DatabaseException('更新购物车失败: $e');
     }
   }
 
   @override
   Future<void> deleteCart(String uid) async {
     try {
-      await firestore.collection(_carts).doc(uid).delete();
-    } on FirebaseException {
-      rethrow;
-    } on UnimplementedError catch (e) {
-      throw DatabaseException(e.message ?? '');
+      await database.collection(_carts).doc(uid).delete();
+    } catch (e) {
+      throw DatabaseException('删除购物车失败: $e');
     }
   }
 }
