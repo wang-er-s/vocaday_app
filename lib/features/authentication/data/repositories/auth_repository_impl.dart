@@ -22,7 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
   ) async {
     try {
       final authModel =
-          await remoteDataSource.signUpWithEmailAndPassword(email, password);
+          await remoteDataSource.registerWithUsername(email, password);
       return Right(authModel.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -38,7 +38,7 @@ class AuthRepositoryImpl implements AuthRepository {
   ) async {
     try {
       return Right(
-        await remoteDataSource.signInWithEmailAndPassword(email, password),
+        await remoteDataSource.loginWithUsername(email, password),
       );
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -50,7 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   FutureEither<void> signOut() async {
     try {
-      return Right(await remoteDataSource.signOut());
+      return Right(await remoteDataSource.logout());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

@@ -1,4 +1,11 @@
 import 'dart:async';
+import 'package:bmob_plugin/bmob/response/bmob_registered.dart';
+import 'package:bmob_plugin/bmob/table/bmob_user.dart';
+import 'package:bmob_plugin/bmob/response/bmob_saved.dart';
+import 'package:bmob_plugin/bmob/response/bmob_updated.dart';
+import 'package:bmob_plugin/bmob/response/bmob_handled.dart';
+import 'package:bmob_plugin/bmob/response/bmob_error.dart';
+
 import '../../features/authentication/data/models/bmob_user_model.dart';
 
 /// Bmob 认证适配器
@@ -23,18 +30,31 @@ class BmobAuthAdapter {
     String? email,
   }) async {
     try {
-      // 创建用户注册数据
-      Map<String, dynamic> userData = {
-        'username': username,
-        'password': password,
-      };
+      // 创建 Bmob 用户对象
+      BmobUser bmobUser = BmobUser();
+      bmobUser.username = username;
+      bmobUser.password = password;
       if (email != null) {
-        userData['email'] = email;
+        bmobUser.email = email;
       }
+
+      // 注册用户
+      final BmobRegistered registeredData = await bmobUser.register();
       
-      // 注册用户 - 使用简化的错误处理
-      // TODO: 需要根据实际的 bmob_plugin API 调整
-      throw UnimplementedError('Bmob 注册功能需要根据实际 API 实现');
+      // 创建用户模型
+      final userModel = BmobUserModel(
+        objectId: registeredData.objectId,
+        createdAt: registeredData.createdAt,
+        username: username,
+        email: email,
+        isNewUser: true,
+      );
+      
+      // 更新当前用户状态
+      _currentUser = userModel;
+      _userStreamController.add(_currentUser);
+      
+      return userModel;
     } catch (e) {
       throw _handleBmobError(e);
     }
@@ -46,9 +66,29 @@ class BmobAuthAdapter {
     required String password,
   }) async {
     try {
-      // 登录用户 - 使用简化的错误处理
-      // TODO: 需要根据实际的 bmob_plugin API 调整
-      throw UnimplementedError('Bmob 登录功能需要根据实际 API 实现');
+      // 创建 Bmob 用户对象进行登录
+      BmobUser bmobUser = BmobUser();
+      bmobUser.username = username;
+      bmobUser.password = password;
+      
+      // 执行登录
+      final BmobUser loggedInUser = await bmobUser.login();
+      
+      // 创建用户模型
+      final userModel = BmobUserModel(
+        objectId: loggedInUser.objectId,
+        createdAt: loggedInUser.createdAt,
+        updatedAt: loggedInUser.updatedAt,
+        username: loggedInUser.username,
+        email: loggedInUser.email,
+        isNewUser: false,
+      );
+      
+      // 更新当前用户状态
+      _currentUser = userModel;
+      _userStreamController.add(_currentUser);
+      
+      return userModel;
     } catch (e) {
       throw _handleBmobError(e);
     }
@@ -57,8 +97,12 @@ class BmobAuthAdapter {
   /// 退出登录
   Future<void> signOut() async {
     try {
+      // 清除当前用户状态
       _currentUser = null;
       _userStreamController.add(null);
+      
+      // 注意：Bmob SDK 可能没有显式的 logout 方法
+      // 主要通过清除本地状态来实现退出
     } catch (e) {
       throw _handleBmobError(e);
     }
@@ -71,8 +115,15 @@ class BmobAuthAdapter {
         throw Exception('用户未登录');
       }
       
-      // TODO: 需要根据实际的 bmob_plugin API 调整
-      throw UnimplementedError('Bmob 更新密码功能需要根据实际 API 实现');
+      // 获取当前用户对象
+      BmobUser bmobUser = BmobUser();
+      bmobUser.objectId = _currentUser!.objectId;
+      bmobUser.password = newPassword;
+      
+      // 更新密码
+      final BmobUpdated updateResult = await bmobUser.update();
+      
+      // 密码更新成功，但不需要更新本地用户模型（密码不存储在本地）
     } catch (e) {
       throw _handleBmobError(e);
     }
@@ -81,8 +132,14 @@ class BmobAuthAdapter {
   /// 发送密码重置邮件
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      // TODO: 需要根据实际的 bmob_plugin API 调整
-      throw UnimplementedError('Bmob 密码重置功能需要根据实际 API 实现');
+      // 创建用户对象用于重置密码
+      BmobUser bmobUser = BmobUser();
+      bmobUser.email = email;
+      
+      // 发送密码重置邮件
+      final BmobHandled result = await bmobUser.requestPasswordResetByEmail();
+      
+      // 密码重置邮件发送成功
     } catch (e) {
       throw _handleBmobError(e);
     }
@@ -95,8 +152,27 @@ class BmobAuthAdapter {
         throw Exception('用户未登录');
       }
       
-      // TODO: 需要根据实际的 bmob_plugin API 调整
-      throw UnimplementedError('Bmob 删除用户功能需要根据实际 API 实现');
+      // 创建用户对象进行删除
+      BmobUser bmobUser = BmobUser();
+      bmobUser.objectId = _currentUser!.objectId;
+      
+      // 删除用户账户
+      final BmobHandled deleteResult = await bmobUser.delete();
+      
+      // 清除当前用户状态
+      _currentUser = null;
+      _userStreamController.add(null);
+    } catch (e) {
+      throw _handleBmobError(e);
+    }
+  }
+  
+  /// 获取当前登录用户信息
+  Future<BmobUserModel?> getCurrentUser() async {
+    try {
+      // 注意：Bmob 可能没有直接的 getCurrentUser 方法
+      // 这里返回当前缓存的用户信息
+      return _currentUser;
     } catch (e) {
       throw _handleBmobError(e);
     }
@@ -104,8 +180,23 @@ class BmobAuthAdapter {
   
   /// 处理 Bmob 错误
   Exception _handleBmobError(dynamic error) {
-    // 简化错误处理，避免依赖未知的 BmobError 类
-    return Exception('Bmob 操作失败: ${error.toString()}');
+    // 如果是 Bmob 错误，尝试提取错误信息
+    if (error.toString().contains('BmobError')) {
+      try {
+        final BmobError? bmobError = BmobError.convert(error);
+        if (bmobError != null) {
+          return Exception('Bmob 错误 [${bmobError.code}]: ${bmobError.error}');
+        } else {
+          return Exception('Bmob 操作失败: ${error.toString()}');
+        }
+      } catch (e) {
+        // 如果无法转换为 BmobError，使用通用错误处理
+        return Exception('Bmob 操作失败: ${error.toString()}');
+      }
+    }
+    
+    // 其他类型的错误
+    return Exception('认证操作失败: ${error.toString()}');
   }
   
   /// 释放资源

@@ -9,12 +9,19 @@ import '../models/bmob_user_model.dart';
 abstract interface class AuthRemoteDataSource {
   /// Throw [ServerException] for all errors
   Stream<BmobUserModel?> get user;
-  Future<AuthModel> signUpWithEmailAndPassword(String email, String password);
-  Future<void> signInWithEmailAndPassword(String email, String password);
-  Future<void> signOut();
+  /// 注册
+  Future<AuthModel> registerWithUsername(String username, String password);
+  /// 登录
+  Future<void> loginWithUsername(String email, String password);
+  /// 退出登录
+  Future<void> logout();
+  /// 更新密码
   Future<void> updatePassword(String password);
+  /// 重新认证
   Future<void> reauthenticateWithCredential(String email, String password);
+  /// 发送重置密码邮件
   Future<void> sendCodeToEmail(String email);
+  /// 删除用户
   Future<void> deleteUserAuth();
 }
 
@@ -27,18 +34,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Stream<BmobUserModel?> get user => _authAdapter.authStateChanges;
 
   @override
-  Future<AuthModel> signUpWithEmailAndPassword(
-    String email,
+  Future<AuthModel> registerWithUsername(
+    String username,
     String password,
   ) async {
     try {
-      // 使用 email 作为用户名（Bmob 使用用户名登录）
-      final username = email.split('@').first;
-      
       final bmobUser = await _authAdapter.createUserWithUsernameAndPassword(
         username: username,
         password: password,
-        email: email,
+        email: username,
       );
 
       final authModel = AuthModel(
@@ -57,7 +61,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> signInWithEmailAndPassword(String email, String password) async {
+  Future<void> loginWithUsername(String email, String password) async {
     try {
       // 使用 email 作为用户名（Bmob 使用用户名登录）
       final username = email.split('@').first;
@@ -73,7 +77,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> signOut() async {
+  Future<void> logout() async {
     try {
       await _authAdapter.signOut();
     } catch (e) {
