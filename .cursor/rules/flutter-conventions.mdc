@@ -1,0 +1,66 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Flutter 开发规范
+
+## 核心文件参考
+- [lib/app.dart](mdc:lib/app.dart) - 应用主入口
+- [lib/bloc_provider_scope.dart](mdc:lib/bloc_provider_scope.dart) - 全局状态管理配置
+- [lib/app/routes/](mdc:lib/app/routes/) - 路由管理
+- [lib/app/themes/](mdc:lib/app/themes/) - 主题配置
+
+## 代码规范
+
+### 1. 文件组织
+- 每个文件只包含一个主要的 class
+- 文件名使用 snake_case
+- 类名使用 PascalCase
+- 变量和方法使用 camelCase
+
+### 2. Widget 开发规范
+```dart
+// 好的例子
+class CustomButton extends StatelessWidget {
+  const CustomButton({
+    super.key,
+    required this.title,
+    this.onPressed,
+  });
+
+  final String title;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: Text(title),
+    );
+  }
+}
+```
+
+### 3. 常量管理
+- 应用常量放在 [lib/app/constants/app_const.dart](mdc:lib/app/constants/app_const.dart)
+- UI 元素常量放在 [lib/app/constants/app_element.dart](mdc:lib/app/constants/app_element.dart)
+
+### 4. 资源管理
+- 使用 [lib/app/constants/gen/assets.gen.dart](mdc:lib/app/constants/gen/assets.gen.dart) 访问资源
+- 字体使用 [lib/app/constants/gen/fonts.gen.dart](mdc:lib/app/constants/gen/fonts.gen.dart)
+
+### 5. 国际化
+- 翻译文件：[assets/translations/](mdc:assets/translations/)
+- 使用 [lib/app/translations/locale_keys.g.dart](mdc:lib/app/translations/locale_keys.g.dart) 中的常量
+- 参考 [lib/app/translations/translation_extension.dart](mdc:lib/app/translations/translation_extension.dart)
+
+### 6. 共享组件
+- 通用 Widget 放在 [lib/app/widgets/](mdc:lib/app/widgets/)
+- 全局 Widget 在 [lib/global_widget.dart](mdc:lib/global_widget.dart)
+
+## 性能优化规则
+- 使用 `const` 构造函数
+- 合理使用 `setState()` 的作用域
+- 避免在 build 方法中创建昂贵的对象
+- 使用 `ListView.builder` 而不是 `ListView`

@@ -40,11 +40,19 @@ class _SelectLanguageOptionsWidgetState
           ),
           const Gap(height: 10),
           LanguageOptionWidget(
-            onTap: () async => await setAppLanguage(AppLocale.vi),
-            text: LocaleKeys.app_language_vietnamese.tr(),
+            onTap: () async => await setAppLanguage(AppLocale.zh_CN),
+            text: LocaleKeys.app_language_zh_CN.tr(),
             icon: Assets.icons.vietnamRound,
             isSelected:
-                context.locale.languageCode == AppLocale.vi.languageCode,
+                context.locale.languageCode == AppLocale.zh_CN.languageCode,
+          ),
+          const Gap(height: 10),
+          LanguageOptionWidget(
+            onTap: () async => await setAppLanguage(AppLocale.zh_TW),
+            text: LocaleKeys.app_language_zh_TW.tr(),
+            icon: Assets.icons.vietnamRound,
+            isSelected:
+                context.locale.languageCode == AppLocale.zh_TW.languageCode,
           ),
         ],
       ),

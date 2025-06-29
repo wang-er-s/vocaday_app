@@ -1,0 +1,54 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Clean Architecture 规范
+
+## 项目架构概述
+本项目遵循 Clean Architecture 模式，主要文件结构参考：
+- [lib/features/](mdc:lib/features/) - 功能模块根目录
+- [lib/core/](mdc:lib/core/) - 核心共享组件
+- [lib/app/](mdc:lib/app/) - 应用层配置
+
+## 功能模块结构规范
+每个 feature 必须严格按照以下结构组织：
+
+```
+features/feature_name/
+├── data/
+│   ├── data_sources/      # 数据源（API、本地数据库等）
+│   ├── models/           # 数据模型（继承自 entities）
+│   └── repositories/     # Repository 实现
+├── domain/
+│   ├── entities/         # 业务实体
+│   ├── repositories/     # Repository 接口
+│   └── usecases/        # 业务用例
+└── presentation/
+    ├── blocs/ 或 cubits/ # 状态管理
+    ├── pages/           # 页面
+    └── widgets/         # UI 组件
+```
+
+## 开发规则
+
+### 1. 依赖方向
+- **domain** 层不依赖任何其他层
+- **data** 层可以依赖 domain 层
+- **presentation** 层可以依赖 domain 层，但不能直接依赖 data 层
+
+### 2. 文件命名
+- Entities: `*_entity.dart`
+- Models: `*_model.dart` 
+- Use cases: `*.dart` (动词形式，如 `get_words.dart`)
+- Repositories: `*_repository.dart`
+- Data sources: `*_data_source.dart`
+
+### 3. 新功能开发检查清单
+- [ ] 在 [lib/features/](mdc:lib/features/) 下创建新的功能目录
+- [ ] 按照标准结构创建 data/domain/presentation 三层
+- [ ] 定义 domain entities 
+- [ ] 创建 repository 接口和实现
+- [ ] 实现必要的 use cases
+- [ ] 创建 bloc/cubit 进行状态管理
+- [ ] 编写单元测试

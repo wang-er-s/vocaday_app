@@ -17,36 +17,30 @@ class SearchWordsUsecase
 
   @override
   FutureEither<(List<WordEntity> sameWords, List<WordEntity> similarWords)>
-      call(
-    String params,
-  ) async {
+  call(String params) async {
     final keyword = params.toUpperCase();
     const maxSimilarItem = AppValueConst.maxItemLoad;
 
     final getAllWordsResult = await repository.getAllWords();
 
-    return getAllWordsResult.fold(
-      (fail) => Left(fail),
-      (wordList) {
-        final searchResult = wordList
-            .where(
-              (entity) => entity.word.contains(keyword),
-            )
-            .toList()
-          ..sort((a, b) => a.word.length.compareTo(b.word.length));
+    return getAllWordsResult.fold((fail) => Left(fail), (wordList) {
+      final searchResult =
+          wordList.where((entity) => entity.word.contains(keyword)).toList()
+            ..sort((a, b) => a.word.length.compareTo(b.word.length));
 
-        if (keyword.length < 3) {
-          return Right((searchResult, []));
-        } else {
-          return Right((
+      if (keyword.length < 3) {
+        return Right((searchResult, []));
+      } else {
+        return Right((
+          searchResult,
+          _findSimilarWords(
+            keyword,
+            wordList,
             searchResult,
-            _findSimilarWords(keyword, wordList, searchResult)
-                .take(maxSimilarItem)
-                .toList(),
-          ));
-        }
-      },
-    );
+          ).take(maxSimilarItem).toList(),
+        ));
+      }
+    });
   }
 
   List<WordEntity> _findSimilarWords(

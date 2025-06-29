@@ -1,0 +1,102 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 测试开发规范
+
+## 测试结构参考
+- [test/](mdc:test/) - 测试根目录
+- [test/features/](mdc:test/features/) - 功能模块测试
+- [test/app/](mdc:test/app/) - 应用层测试
+- [test/helper/](mdc:test/helper/) - 测试辅助工具
+
+## 测试文件组织
+
+### 1. 目录结构镜像
+测试文件结构应该镜像 `lib/` 的结构：
+```
+test/
+├── features/
+│   └── authentication/
+│       ├── data/
+│       ├── domain/
+│       └── presentation/
+├── app/
+└── helper/
+```
+
+### 2. 测试文件命名
+- 单元测试：`*_test.dart`
+- 集成测试：`*_integration_test.dart`
+- Widget 测试：`*_widget_test.dart`
+
+## 测试覆盖规范
+
+### 必须测试的组件：
+1. **Use Cases** - 业务逻辑核心
+2. **Repositories** - 数据访问层
+3. **Blocs/Cubits** - 状态管理
+4. **Models** - 数据转换
+5. **Utils** - 工具函数
+
+### 测试示例参考：
+- [test/features/word/domain/usecases/](mdc:test/features/word/domain/usecases/) - Use case 测试示例
+- [test/app/utils/](mdc:test/app/utils/) - 工具函数测试示例
+
+## 测试最佳实践
+
+### 1. AAA 模式
+```dart
+void main() {
+  group('AuthBloc', () {
+    test('should emit success when sign in succeeds', () async {
+      // Arrange - 准备测试数据
+      final mockRepository = MockAuthRepository();
+      final bloc = AuthBloc(repository: mockRepository);
+      
+      // Act - 执行操作
+      bloc.add(AuthSignInRequested('test@test.com', 'password'));
+      
+      // Assert - 验证结果
+      expect(bloc.state, isA<AuthSuccess>());
+    });
+  });
+}
+```
+
+### 2. Mock 对象使用
+```dart
+// 使用 mockito 创建 mock 对象
+class MockAuthRepository extends Mock implements AuthRepository {}
+```
+
+### 3. 测试数据管理
+- 测试数据文件放在 [test/assets/data/](mdc:test/assets/data/)
+- 使用 [test/helper/file_reader.dart](mdc:test/helper/file_reader.dart) 读取测试数据
+
+### 4. Widget 测试
+```dart
+testWidgets('should show loading indicator when state is loading', (tester) async {
+  await tester.pumpWidget(
+    BlocProvider<AuthBloc>.value(
+      value: authBloc,
+      child: const AuthPage(),
+    ),
+  );
+  
+  expect(find.byType(CircularProgressIndicator), findsOneWidget);
+});
+```
+
+## 测试运行命令
+```bash
+# 运行所有测试
+flutter test
+
+# 运行特定测试文件
+flutter test test/features/authentication/
+
+# 生成覆盖率报告
+flutter test --coverage
+```

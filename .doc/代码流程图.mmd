@@ -1,0 +1,137 @@
+graph TD
+    A[main.dart<br/>应用启动] --> B[初始化配置]
+    B --> B1[EasyLocalization<br/>多语言初始化]
+    B --> B2[NotificationService<br/>通知服务初始化]
+    B --> B3[Bmob后端服务<br/>初始化]
+    B --> B4[依赖注入<br/>setUpServiceLocator]
+    
+    B4 --> C[BlocProviderScope<br/>状态管理提供者]
+    C --> C1[ThemeCubit<br/>主题管理]
+    C --> C2[AuthBloc<br/>认证管理]
+    C --> C3[WordListCubit<br/>单词列表]
+    C --> C4[UserDataCubit<br/>用户数据]
+    C --> C5[CartCubit<br/>购物车]
+    C --> C6[ConnectionCubit<br/>网络连接]
+    
+    C --> D[MainApp<br/>主应用]
+    D --> E{用户状态检查}
+    
+    E -->|首次使用| F[OnBoardPage<br/>引导页面]
+    F --> F1[WelcomePage<br/>欢迎页]
+    F --> F2[SelectLanguagePage<br/>语言选择]
+    F --> G[EntryPage<br/>入口页面]
+    
+    E -->|已使用| G
+    
+    G --> H{认证状态}
+    H -->|未登录| I[AuthenticationPage<br/>认证页面]
+    I --> I1[SignInPage<br/>登录页]
+    I --> I2[SignUpPage<br/>注册页]
+    
+    H -->|已登录| J[MainPage<br/>主页面]
+    
+    J --> K[底部导航<br/>4个Tab]
+    K --> K1[HomePage<br/>首页]
+    K --> K2[SearchPage<br/>搜索页]
+    K --> K3[ActivityPage<br/>活动页]
+    K --> K4[ProfilePage<br/>个人页]
+    
+    K1 --> L1[每日新单词<br/>MainNewWordPanel]
+    K1 --> L2[签到面板<br/>CheckInPanel]
+    K1 --> L3[排行榜<br/>LeaderBoard]
+    
+    K2 --> M1[单词搜索<br/>SearchWordBloc]
+    K2 --> M2[搜索结果展示]
+    
+    K3 --> N1[单词列表<br/>ActivityWordStore]
+    K3 --> N2[闪卡学习<br/>FlashCard]
+    K3 --> N3[小游戏<br/>MiniGame]
+    N3 --> N3A[Quiz游戏]
+    N3 --> N3B[滑块拼图游戏]
+    
+    K4 --> O1[用户信息<br/>UserProfile]
+    K4 --> O2[收藏单词<br/>Favourite]
+    K4 --> O3[已学单词<br/>KnownWords]
+    K4 --> O4[设置<br/>Settings]
+    
+    %% 侧边抽屉菜单
+    J --> P[MenuDrawer<br/>侧边菜单]
+    P --> P1[设置页面<br/>SettingPage]
+    P --> P2[购物车<br/>CartPage]
+    P --> P3[收藏页面<br/>FavouritePage]
+    P --> P4[已学单词<br/>KnownWordPage]
+    P --> P5[修改密码<br/>ChangePasswordPage]
+    
+    %% 数据层架构
+    Q[数据架构<br/>Clean Architecture] --> Q1[Presentation Layer<br/>表现层]
+    Q --> Q2[Domain Layer<br/>领域层]
+    Q --> Q3[Data Layer<br/>数据层]
+    
+    Q1 --> Q1A[Pages/Widgets<br/>页面和组件]
+    Q1 --> Q1B[BLoC/Cubit<br/>状态管理]
+    
+    Q2 --> Q2A[Entities<br/>实体]
+    Q2 --> Q2B[UseCases<br/>用例]
+    Q2 --> Q2C[Repositories<br/>仓储接口]
+    
+    Q3 --> Q3A[Models<br/>数据模型]
+    Q3 --> Q3B[DataSources<br/>数据源]
+    Q3 --> Q3C[Repository Impl<br/>仓储实现]
+    
+    %% 主要功能模块
+    R[核心功能模块] --> R1[Authentication<br/>用户认证]
+    R --> R2[Word<br/>单词管理]
+    R --> R3[User Profile<br/>用户资料]
+    R --> R4[User Cart<br/>购物车]
+    R --> R5[Mini Game<br/>小游戏]
+    
+    R1 --> R1A[登录/注册<br/>邮箱密码]
+    R1 --> R1B[忘记密码<br/>邮箱验证]
+    R1 --> R1C[修改密码]
+    R1 --> R1D[注销登录]
+    
+    R2 --> R2A[本地单词数据<br/>JSON文件]
+    R2 --> R2B[单词搜索<br/>算法]
+    R2 --> R2C[单词分类]
+    
+    R3 --> R3A[用户数据同步<br/>Bmob云端]
+    R3 --> R3B[收藏单词管理]
+    R3 --> R3C[已学单词管理]
+    R3 --> R3D[签到系统]
+    R3 --> R3E[积分金币系统]
+    
+    R4 --> R4A[购物车管理]
+    R4 --> R4B[单词包购买]
+    
+    R5 --> R5A[Quiz问答游戏]
+    R5 --> R5B[滑块拼图游戏]
+    R5 --> R5C[游戏积分系统]
+    
+    %% 后端服务
+    S[后端服务<br/>Bmob] --> S1[用户认证服务<br/>BmobAuthAdapter]
+    S --> S2[数据库服务<br/>BmobDatabaseAdapter]
+    S --> S3[存储服务<br/>BmobStorageAdapter]
+    
+    S1 --> S1A[用户注册登录]
+    S1 --> S1B[密码管理]
+    S1 --> S1C[邮箱验证]
+    
+    S2 --> S2A[用户数据存储]
+    S2 --> S2B[收藏/已学单词]
+    S2 --> S2C[购物车数据]
+    S2 --> S2D[游戏记录]
+    
+    S3 --> S3A[用户头像上传]
+    S3 --> S3B[文件存储管理]
+    
+    classDef startNode fill:#e1f5fe
+    classDef mainPage fill:#f3e5f5
+    classDef feature fill:#e8f5e8
+    classDef data fill:#fff3e0
+    classDef service fill:#fce4ec
+    
+    class A,B startNode
+    class J,K mainPage
+    class R1,R2,R3,R4,R5 feature
+    class Q1,Q2,Q3 data
+    class S,S1,S2,S3 service

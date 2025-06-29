@@ -1,0 +1,51 @@
+flowchart TD
+    START([用户操作<br/>点击获取单词列表])
+    
+    UI[WordListPage<br/>UI页面]
+    CUBIT[WordListCubit<br/>状态管理]
+    LOADING[发出Loading状态<br/>显示加载动画]
+    
+    USECASE[GetAllWordsUsecase<br/>获取所有单词用例]
+    REPO_INTERFACE[WordRepository<br/>仓储接口]
+    REPO_IMPL[WordRepositoryImpl<br/>仓储实现]
+    
+    LOCAL_DS[WordLocalDataSource<br/>本地数据源]
+    JSON_FILE[assets/data/selected.json<br/>JSON文件]
+    
+    MODEL[WordModel<br/>数据模型]
+    ENTITY[WordEntity<br/>业务实体]
+    
+    SUCCESS[发出Loaded状态<br/>显示单词列表]
+    ERROR[发出Error状态<br/>显示错误信息]
+    
+    START --> UI
+    UI --> CUBIT
+    CUBIT --> LOADING
+    CUBIT --> USECASE
+    
+    USECASE --> REPO_INTERFACE
+    REPO_INTERFACE --> REPO_IMPL
+    REPO_IMPL --> LOCAL_DS
+    LOCAL_DS --> JSON_FILE
+    
+    JSON_FILE --> MODEL
+    MODEL --> ENTITY
+    ENTITY --> USECASE
+    
+    USECASE --> SUCCESS
+    USECASE --> ERROR
+    
+    SUCCESS --> UI
+    ERROR --> UI
+    
+    classDef startEnd fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px,color:#000
+    classDef presentation fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000
+    classDef domain fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef data fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef external fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    
+    class START,SUCCESS,ERROR startEnd
+    class UI,CUBIT,LOADING presentation
+    class USECASE,REPO_INTERFACE,ENTITY domain
+    class REPO_IMPL,LOCAL_DS,MODEL data
+    class JSON_FILE external

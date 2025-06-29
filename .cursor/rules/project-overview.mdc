@@ -1,0 +1,98 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# VocaDay App - 项目概览
+
+## 项目简介
+VocaDay 是一个基于 Flutter 的词汇学习应用，采用 Clean Architecture 架构，使用 Bmob 作为后端服务。
+
+## 核心技术栈
+- **框架**: Flutter
+- **架构**: Clean Architecture + Feature-First 组织
+- **状态管理**: Bloc/Cubit
+- **后端服务**: Bmob
+- **本地化**: Easy Localization
+- **测试**: Unit Tests + Widget Tests
+
+## 项目结构快速导航
+
+### 🏗️ 核心架构
+- [lib/app/](mdc:lib/app) - 应用层配置和管理
+- [lib/core/](mdc:lib/core) - 核心共享组件和工具
+- [lib/features/](mdc:lib/features) - 功能模块（Clean Architecture）
+
+### 🎯 主要功能模块
+- [lib/features/authentication/](mdc:lib/features/authentication) - 用户认证系统
+- [lib/features/word/](mdc:lib/features/word) - 词汇管理功能
+- [lib/features/user/](mdc:lib/features/user) - 用户配置和购物车
+- [lib/features/mini_game/](mdc:lib/features/mini_game) - 游戏化学习
+
+### 📱 用户界面
+- [lib/app/screens/main/](mdc:lib/app/screens/main) - 主界面和导航
+- [lib/app/screens/on_board/](mdc:lib/app/screens/on_board) - 引导页面
+- [lib/app/screens/setting/](mdc:lib/app/screens/setting) - 设置页面
+
+### 🎨 设计系统
+- [lib/app/themes/](mdc:lib/app/themes) - 主题和颜色配置
+- [lib/app/widgets/](mdc:lib/app/widgets) - 通用 UI 组件
+- [assets/](mdc:assets) - 图片、图标、字体资源
+
+### 🔧 工具和管理
+- [lib/app/managers/](mdc:lib/app/managers) - 各种管理器（API、存储、连接等）
+- [lib/app/utils/](mdc:lib/app/utils) - 工具函数
+- [lib/app/adapters/](mdc:lib/app/adapters) - Bmob 适配器
+
+## 开发工作流
+
+### 1. 新功能开发
+```
+1. 在 lib/features/ 下创建新功能目录
+2. 按 Clean Architecture 结构组织代码
+3. 编写单元测试
+4. 更新文档
+```
+
+### 2. 代码规范
+- 遵循 [flutter-conventions.mdc](mdc:.cursor/rules/flutter-conventions.mdc)
+- 使用 [clean-architecture.mdc](mdc:.cursor/rules/clean-architecture.mdc) 指导架构设计
+- 参考 [bloc-pattern.mdc](mdc:.cursor/rules/bloc-pattern.mdc) 进行状态管理
+
+### 3. 测试策略
+按照 [testing-guidelines.mdc](mdc:.cursor/rules/testing-guidelines.mdc) 进行测试开发
+
+### 4. 后端集成
+参考 [bmob-integration.mdc](mdc:.cursor/rules/bmob-integration.mdc) 进行 Bmob 集成
+
+## 快速开始
+
+### 环境设置
+```bash
+flutter pub get
+flutter packages pub run build_runner build
+```
+
+### 运行应用
+```bash
+flutter run
+```
+
+### 运行测试
+```bash
+flutter test
+```
+
+## 重要文件
+- [lib/app.dart](mdc:lib/app.dart) - 应用入口
+- [lib/bloc_provider_scope.dart](mdc:lib/bloc_provider_scope.dart) - 全局状态配置
+- [pubspec.yaml](mdc:pubspec.yaml) - 依赖管理
+- [migration_to_bmob.md](mdc:migration_to_bmob.md) - Bmob 迁移文档
+
+## 开发规则汇总
+1. **架构**: 严格遵循 Clean Architecture
+2. **状态管理**: 优先使用 Cubit，复杂场景使用 Bloc
+3. **测试**: 必须为 Use Cases 和 Repositories 编写测试
+4. **国际化**: 所有用户可见文本必须国际化
+5. **资源**: 使用代码生成的资源访问方式
+

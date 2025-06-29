@@ -10,7 +10,7 @@ class GlobalWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EasyLocalization(
-      supportedLocales: [AppLocale.en.instance, AppLocale.vi.instance],
+      supportedLocales: [AppLocale.en.instance, AppLocale.zh_CN.instance, AppLocale.zh_TW.instance],
       assetLoader: const CodegenLoader(),
       path: "assets/translations",
       fallbackLocale: AppLocale.en.instance,

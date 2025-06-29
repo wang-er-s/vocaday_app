@@ -77,7 +77,9 @@ Future<void> setUpServiceLocator() async {
     () => SharedPreferences.getInstance(),
   );
   await sl.isReady<SharedPreferences>();
+  // http 请求
   sl.registerLazySingleton(() => Dio());
+  // 网络状态判断
   sl.registerLazySingleton(() => Connectivity());
   
   //! Bmob 适配器
@@ -86,12 +88,18 @@ Future<void> setUpServiceLocator() async {
   sl.registerLazySingleton(() => BmobStorageAdapter());
 
   //! App
+  // 本地存储
   sl.registerLazySingleton(() => SharedPrefManager(sl()));
+  // 云存储
   sl.registerLazySingleton(() => CloudStorageService(sl()));
+  // 从某个网站获取指定大小的图片
   sl.registerLazySingleton(() => CustomApiService(sl()));
+  // 路由
   sl.registerLazySingleton(() => AppRouter());
+  // 主题
   sl.registerFactory(() => ThemeCubit(sl()));
   sl.registerFactory(() => LanguageCubit());
+  // 断网监听
   sl.registerFactory(() => ConnectionCubit(sl()));
 
   //! Features - favourite

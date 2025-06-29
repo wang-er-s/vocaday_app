@@ -87,7 +87,7 @@ extension BuildContextExtension on BuildContext {
       firstDate: DateTime(now.year - 100),
       lastDate: lastDate ?? now,
       currentDate: now,
-      locale: locale ?? AppLocale.vi.instance,
+      locale: locale ?? AppLocale.zh_CN.instance,
       confirmText: LocaleKeys.common_select.tr(),
       cancelText: LocaleKeys.common_cancel.tr(),
     );

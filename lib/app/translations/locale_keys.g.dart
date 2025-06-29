@@ -2,7 +2,8 @@
 
 abstract class  LocaleKeys {
   static const app_language_english = 'app_language.english';
-  static const app_language_vietnamese = 'app_language.vietnamese';
+  static const app_language_zh_CN = 'app_language.zh_CN';
+  static const app_language_zh_TW = 'app_language.zh_TW';
   static const app_log_on_restart = 'app_log.on_restart';
   static const auth_already_have_an_account = 'auth.already_have_an_account';
   static const auth_are_you_want_to_sign_out = 'auth.are_you_want_to_sign_out';

@@ -39,9 +39,16 @@ class _SettingLanguage extends StatelessWidget {
             ),
           ),
           DropdownMenuItem(
-            value: AppLocale.vi.instance,
+            value: AppLocale.zh_CN.instance,
             child: TextCustom(
-              LocaleKeys.app_language_vietnamese.tr(),
+              LocaleKeys.app_language_zh_CN.tr(),
+              style: context.textStyle.caption.bw,
+            ),
+          ),
+          DropdownMenuItem(
+            value: AppLocale.zh_TW.instance,
+            child: TextCustom(
+              LocaleKeys.app_language_zh_TW.tr(),
               style: context.textStyle.caption.bw,
             ),
           ),

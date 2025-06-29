@@ -1,0 +1,94 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Bloc/Cubit 状态管理规范
+
+## 项目状态管理参考
+- [lib/bloc_provider_scope.dart](mdc:lib/bloc_provider_scope.dart) - 全局 BlocProvider 配置
+- [lib/features/authentication/presentation/blocs/](mdc:lib/features/authentication/presentation/blocs) - 认证相关状态管理示例
+
+## 选择 Bloc vs Cubit
+
+### 使用 Cubit 的场景：
+- 简单的状态变化
+- 不需要复杂的事件处理
+- 状态变化是线性的
+
+### 使用 Bloc 的场景：
+- 复杂的业务逻辑
+- 需要处理多种事件类型
+- 需要事件的可追踪性
+
+## 文件命名规范
+
+### Bloc 文件结构：
+```
+bloc_name/
+├── bloc_name_bloc.dart      # Bloc 实现
+├── bloc_name_event.dart     # 事件定义
+└── bloc_name_state.dart     # 状态定义
+```
+
+### Cubit 文件结构：
+```
+cubit_name/
+├── cubit_name_cubit.dart    # Cubit 实现
+└── cubit_name_state.dart    # 状态定义
+```
+
+## 状态管理最佳实践
+
+### 1. 状态设计
+```dart
+// 好的状态设计 - 使用密封类
+sealed class AuthState {}
+class AuthInitial extends AuthState {}
+class AuthLoading extends AuthState {}
+class AuthSuccess extends AuthState {
+  final UserEntity user;
+  AuthSuccess(this.user);
+}
+class AuthFailure extends AuthState {
+  final String message;
+  AuthFailure(this.message);
+}
+```
+
+### 2. 事件设计
+```dart
+// 事件应该描述"发生了什么"，而不是"应该做什么"
+sealed class AuthEvent {}
+class AuthSignInRequested extends AuthEvent {
+  final String email;
+  final String password;
+  AuthSignInRequested(this.email, this.password);
+}
+```
+
+### 3. UI 中的使用
+```dart
+// 使用 BlocBuilder 进行状态监听
+BlocBuilder<AuthBloc, AuthState>(
+  builder: (context, state) {
+    return switch (state) {
+      AuthLoading() => const CircularProgressIndicator(),
+      AuthSuccess() => const HomePage(),
+      AuthFailure() => Text('Error: ${state.message}'),
+      _ => const SignInPage(),
+    };
+  },
+)
+```
+
+### 4. 依赖注入
+- 在 [lib/bloc_provider_scope.dart](mdc:lib/bloc_provider_scope.dart) 中配置全局 BlocProvider
+- 使用 `context.read<BlocName>()` 获取 Bloc 实例
+- 避免直接创建 Bloc 实例
+
+### 5. 错误处理
+- 所有状态都应该有对应的错误状态
+- 使用统一的错误处理机制
+- 参考 [lib/core/errors/](mdc:lib/core/errors) 中的错误定义
+
