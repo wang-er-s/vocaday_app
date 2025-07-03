@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../repositories/auth_repository.dart';
 
@@ -6,5 +7,5 @@ class AuthStateChangedUsecase {
 
   AuthStateChangedUsecase({required this.repository});
 
-  Stream<dynamic> get user => repository.user;
+  Stream<User?> get user => repository.user;
 }

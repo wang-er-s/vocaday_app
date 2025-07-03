@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../../../../../app/constants/app_const.dart';
-import '../../../../../core/errors/exception.dart';
 import '../../../../../core/errors/failure.dart';
 import '../../../../../core/typedef/typedefs.dart';
 import '../../domain/entities/user_entity.dart';
@@ -24,9 +24,9 @@ class UserRepositoryImpl implements UserRepository {
           map: userModel.toMap(),
         ),
       );
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: addUserProfile'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: addUserProfile'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -54,9 +54,9 @@ class UserRepositoryImpl implements UserRepository {
           map: userModel.toMapUpdate(),
         ),
       );
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: updateUserProfile'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: updateUserProfile'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -75,14 +75,14 @@ class UserRepositoryImpl implements UserRepository {
           map: {
             'attendance':
                 attendance.map((x) => x.millisecondsSinceEpoch).toList(),
-            'point': AppValueConst.attendancePoint, // 将由适配器处理增量更新
-            'gold': AppValueConst.attendanceGold,   // 将由适配器处理增量更新
+            'point': FieldValue.increment(AppValueConst.attendancePoint),
+            'gold': FieldValue.increment(AppValueConst.attendanceGold),
           },
         ),
       );
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: addAttendanceDate'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: addAttendanceDate'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -96,9 +96,9 @@ class UserRepositoryImpl implements UserRepository {
       final entities = data.map((map) => UserModel.fromMap(map).toEntity());
 
       return Right(entities.toList());
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: getListUsers'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: getListUsers'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -116,9 +116,9 @@ class UserRepositoryImpl implements UserRepository {
         map: {'favourites': favourites},
       );
       return Right(res);
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: syncFavourites'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: syncFavourites'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -131,9 +131,9 @@ class UserRepositoryImpl implements UserRepository {
       return Right(
         await userRemoteDataSource.removeAllFavourites(uid: uid),
       );
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: removeAllFavourites'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: removeAllFavourites'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -146,9 +146,9 @@ class UserRepositoryImpl implements UserRepository {
       return Right(
         await userRemoteDataSource.removeAllKnowns(uid: uid),
       );
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: removeAllKnowns'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: removeAllKnowns'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -166,9 +166,9 @@ class UserRepositoryImpl implements UserRepository {
         map: {'knowns': knowns},
       );
       return Right(res);
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: syncKnowns'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: syncKnowns'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -179,9 +179,9 @@ class UserRepositoryImpl implements UserRepository {
   FutureEither<void> deleteUserProfile(String uid) async {
     try {
       return Right(await userRemoteDataSource.deleteUserProfile(uid: uid));
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: deleteUserProfile'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: deleteUserProfile'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -198,9 +198,9 @@ class UserRepositoryImpl implements UserRepository {
         uid: uid,
         list: knowns,
       ));
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: addKnownWords'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: addKnownWords'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));

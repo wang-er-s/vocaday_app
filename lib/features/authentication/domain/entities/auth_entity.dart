@@ -1,24 +1,25 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../data/models/auth_model.dart';
 
 class AuthEntity extends Equatable {
   final String uid;
-  final dynamic user;
+  final User user;
   final bool isNewUser;
   final SignInMethod signInMethod;
 
   const AuthEntity({
     required this.uid,
     required this.user,
-    this.isNewUser = false,
-    this.signInMethod = SignInMethod.none,
+    required this.isNewUser,
+    required this.signInMethod,
   });
 
   AuthEntity copyWith({
     String? uid,
-    dynamic user,
+    User? user,
     bool? isNewUser,
     SignInMethod? signInMethod,
   }) {

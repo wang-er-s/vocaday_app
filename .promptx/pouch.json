@@ -1,5 +1,5 @@
 {
-  "currentState": "role_activated_with_memory",
+  "currentState": "memory_saved",
   "stateHistory": [
     {
       "from": "initial",
@@ -228,7 +228,27 @@
       "args": [
         "flutter-developer"
       ]
+    },
+    {
+      "from": "role_activated_with_memory",
+      "command": "remember",
+      "timestamp": "2025-06-29T15:47:59.081Z",
+      "args": [
+        "为Flutter新手详细讲解了BLoC状态管理模式，包括：1) BLoC核心概念：Events、States、BLoC三大组件；2) 创建了完整的计数器示例，包含Event、State、BLoC、UI四个文件；3) 演示了BlocProvider、BlocBuilder、BlocListener的使用；4) 展示了业务逻辑与UI分离的最佳实践；5) 包含错误处理、加载状态、用户交互等完整功能。这是一个很好的BLoC入门教学案例。",
+        "--tags",
+        "flutter bloc 状态管理 教学 新手入门 计数器示例"
+      ]
+    },
+    {
+      "from": "memory_saved",
+      "command": "remember",
+      "timestamp": "2025-06-29T16:12:00.333Z",
+      "args": [
+        "成功优化了Flutter BLoC计数器页面的性能问题。主要改进包括：1) 使用MultiBlocListener替代直接在body中使用BlocListener，避免整个UI树重建；2) 使用listenWhen精确控制何时触发副作用；3) 使用buildWhen精确控制组件何时重建；4) 将大的Widget拆分成小的、职责单一的组件；5) 每个组件独立重建，提升性能。这是BLoC性能优化的最佳实践案例。",
+        "--tags",
+        "flutter bloc 性能优化 MultiBlocListener buildWhen listenWhen 组件拆分"
+      ]
     }
   ],
-  "lastUpdated": "2025-06-29T15:42:27.745Z"
+  "lastUpdated": "2025-06-29T16:12:00.335Z"
 }

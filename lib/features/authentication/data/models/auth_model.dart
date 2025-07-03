@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../domain/entities/auth_entity.dart';
 
@@ -6,7 +7,7 @@ enum SignInMethod { none, email, google }
 
 class AuthModel extends Equatable {
   final String uid;
-  final dynamic user;
+  final User user;
   final bool isNewUser;
   final SignInMethod signInMethod;
 
@@ -19,7 +20,7 @@ class AuthModel extends Equatable {
 
   AuthModel copyWith({
     String? uid,
-    dynamic user,
+    User? user,
     bool? isNewUser,
     SignInMethod? signInMethod,
   }) {

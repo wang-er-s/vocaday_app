@@ -1,5 +1,7 @@
-import '../../../../../app/adapters/bmob_database_adapter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../../../core/errors/exception.dart';
+import '../models/user_model.dart';
 
 abstract interface class UserRemoteDataSource {
   Future<void> addUserProfile({
@@ -44,10 +46,10 @@ abstract interface class UserRemoteDataSource {
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
-  final String _users = "UserProfile"; // Bmob 表名
-  final BmobDatabaseAdapter database;
+  final String _users = "users";
+  final FirebaseFirestore firestore;
 
-  UserRemoteDataSourceImpl(this.database);
+  UserRemoteDataSourceImpl(this.firestore);
 
   @override
   Future<void> addUserProfile({
@@ -55,16 +57,22 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     required Map<String, dynamic> map,
   }) async {
     try {
-      await database.collection(_users).doc(uid).set(map);
-    } catch (e) {
-      throw DatabaseException('添加用户资料失败: $e');
+      await firestore.collection(_users).doc(uid).set(
+            map,
+            SetOptions(merge: true),
+          );
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 
   @override
   Stream<Map<String, dynamic>?> getUserData(String uid) async* {
-    // TODO: Bmob 实时监听需要根据实际 API 实现
-    yield await database.collection(_users).doc(uid).get();
+    yield* firestore.collection(_users).doc(uid).snapshots().map(
+          (snapshot) => snapshot.data(),
+        );
   }
 
   @override
@@ -73,9 +81,11 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     required Map<String, dynamic> map,
   }) async {
     try {
-      await database.collection(_users).doc(uid).update(map);
-    } catch (e) {
-      throw DatabaseException('更新用户资料失败: $e');
+      await firestore.collection(_users).doc(uid).update(map);
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 
@@ -85,20 +95,24 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     required Map<String, dynamic> map,
   }) async {
     try {
-      await database.collection(_users).doc(uid).update(map);
+      await firestore.collection(_users).doc(uid).update(map);
       return true;
-    } catch (e) {
-      throw DatabaseException('添加出勤日期失败: $e');
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 
   @override
   Future<List<Map<String, dynamic>>> getListUsers() async {
     try {
-      final results = await database.collection(_users).get();
-      return results;
+      final snapshots = await firestore.collection(_users).get();
+      return snapshots.docs.map((e) => e.data()).toList();
+    } on FirebaseException {
+      rethrow;
     } catch (e) {
-      throw DatabaseException('获取用户列表失败: $e');
+      throw DatabaseException(e.toString());
     }
   }
 
@@ -110,35 +124,39 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     try {
       List<String> localList = map['favourites'] as List<String>;
       if (localList.isEmpty) {
-        final res = await database.collection(_users).doc(uid).get();
-        if (res != null && res['favourites'] != null) {
-          localList = List<String>.from(res['favourites']);
-        }
+        final res = await firestore.collection(_users).doc(uid).get();
+        localList = UserModel.fromMap(res.data()!).favourites ?? [];
       } else {
-        await database.collection(_users).doc(uid).update(map);
+        await firestore.collection(_users).doc(uid).update(map);
       }
 
       return localList;
-    } catch (e) {
-      throw DatabaseException('同步收藏失败: $e');
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 
   @override
   Future<void> removeAllFavourites({required String uid}) async {
     try {
-      await database.collection(_users).doc(uid).update({'favourites': []});
-    } catch (e) {
-      throw DatabaseException('清空收藏失败: $e');
+      await firestore.collection(_users).doc(uid).update({'favourites': null});
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 
   @override
   Future<void> removeAllKnowns({required String uid}) async {
     try {
-      await database.collection(_users).doc(uid).update({'knowns': []});
-    } catch (e) {
-      throw DatabaseException('清空已知单词失败: $e');
+      await firestore.collection(_users).doc(uid).update({'knowns': null});
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 
@@ -150,26 +168,28 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     try {
       List<String> localList = map['knowns'] as List<String>;
       if (localList.isEmpty) {
-        final res = await database.collection(_users).doc(uid).get();
-        if (res != null && res['knowns'] != null) {
-          localList = List<String>.from(res['knowns']);
-        }
+        final res = await firestore.collection(_users).doc(uid).get();
+        localList = UserModel.fromMap(res.data()!).knowns ?? [];
       } else {
-        await database.collection(_users).doc(uid).update(map);
+        await firestore.collection(_users).doc(uid).update(map);
       }
 
       return localList;
-    } catch (e) {
-      throw DatabaseException('同步已知单词失败: $e');
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 
   @override
   Future<void> deleteUserProfile({required String uid}) async {
     try {
-      await database.collection(_users).doc(uid).delete();
-    } catch (e) {
-      throw DatabaseException('删除用户资料失败: $e');
+      await firestore.collection(_users).doc(uid).delete();
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 
@@ -179,23 +199,13 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     required List<String> list,
   }) async {
     try {
-      // 先获取现有的已知单词列表
-      final doc = await database.collection(_users).doc(uid).get();
-      List<String> currentKnowns = [];
-      
-      if (doc != null && doc['knowns'] != null) {
-        currentKnowns = List<String>.from(doc['knowns']);
-      }
-      
-      // 合并新的单词（去重）
-      final Set<String> knownSet = {...currentKnowns, ...list};
-      
-      // 更新到数据库
-      await database.collection(_users).doc(uid).update({
-        'knowns': knownSet.toList(),
+      await firestore.collection(_users).doc(uid).update({
+        'knowns': FieldValue.arrayUnion(list),
       });
-    } catch (e) {
-      throw DatabaseException('添加已知单词失败: $e');
+    } on FirebaseException {
+      rethrow;
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
     }
   }
 }

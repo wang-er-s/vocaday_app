@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/errors/exception.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/typedef/typedefs.dart';
 import '../../domain/repositories/game_repository.dart';
@@ -16,12 +16,12 @@ class GameRepositoryImpl implements GameRepository {
     try {
       return Right(
         await _remoteDataSource.updateUserPoint(uid, {
-          'point': point, // 将由适配器处理增量更新
+          'point': FieldValue.increment(point),
         }),
       );
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: updateUserPoint'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: updateUserPoint'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -33,12 +33,12 @@ class GameRepositoryImpl implements GameRepository {
     try {
       return Right(
         await _remoteDataSource.updateUserGold(uid, {
-          'gold': gold, // 将由适配器处理增量更新
+          'gold': FieldValue.increment(gold),
         }),
       );
-    } on ServerException catch (e) {
+    } on FirebaseException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'ServerFailure: updateUserGold'),
+        FirebaseFailure(e.message ?? 'FirebaseFailure: updateUserGold'),
       );
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
