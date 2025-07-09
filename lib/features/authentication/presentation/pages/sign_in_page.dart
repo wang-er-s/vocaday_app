@@ -36,28 +36,26 @@ class _SignInPageState extends State<SignInPage>
     super.dispose();
   }
 
-  _onSignInButton(SignInState state) {
+  void _onSignInButton(SignInState state) {
     if (state is! SignInLoadingState) {
       UtilFunction.unFocusTextField();
       context.read<SignInBloc>().add(
-            RequestSignInEvent(
-              email: _emailController.text.trim(),
-              password: _passwordController.text.trim(),
-            ),
-          );
+        RequestSignInEvent(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        ),
+      );
     }
   }
 
-  _onSignInGoogleButton(SignInState state) {
+  void _onSignInGoogleButton(SignInState state) {
     if (state is! SignInLoadingState) {
-      context.read<SignInBloc>().add(RequestSignInGoogleEvent());
+      context.read<SignInBloc>().add(RequestSignInPhoneEvent());
     }
   }
 
-  _forgotPasswordBottomSheet() {
-    context.showBottomSheet(
-      child: const ResetPasswordBottomSheet(),
-    );
+  void _forgotPasswordBottomSheet() {
+    context.showBottomSheet(child: const ResetPasswordBottomSheet());
   }
 
   @override
@@ -158,7 +156,7 @@ class _SignInPageState extends State<SignInPage>
                                         ),
                                       ),
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                             ],

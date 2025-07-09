@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vocaday_app/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:vocaday_app/features/authentication/domain/usecases/auth_state_changed.dart';
 
@@ -10,7 +10,7 @@ final MockUser _mockUser = MockUser();
 
 class MockAuthRepository extends Mock implements AuthRepository {
   @override
-  Stream<User?> get user => Stream.fromIterable([_mockUser]);
+  User? get user => _mockUser;
 }
 
 void main() {

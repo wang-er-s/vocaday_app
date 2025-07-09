@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -20,16 +20,17 @@ class MockUser extends Mock implements User {}
 
 void main() {
   final mockUser = MockUser();
-  late SignInWithGoogleUsecase signInWithGoogleUsecase;
+  late SignInWithPhoneUsecase signInWithGoogleUsecase;
   late MockAuthRepository mockAuthRepository;
   late MockUserRepository mockUserRepository;
   late MockCartRepository mockCartRepository;
+  final testPhone = "";
 
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     mockUserRepository = MockUserRepository();
     mockCartRepository = MockCartRepository();
-    signInWithGoogleUsecase = SignInWithGoogleUsecase(
+    signInWithGoogleUsecase = SignInWithPhoneUsecase(
       authRepository: mockAuthRepository,
       userRepository: mockUserRepository,
       cartRepository: mockCartRepository,
@@ -40,20 +41,22 @@ void main() {
     uid: 'uid',
     user: mockUser,
     isNewUser: false,
-    signInMethod: SignInMethod.none,
+    signInMethod: SignInMethod.phone,
   );
 
   group('Sign In With Google Usecase', () {
     test('should get [AuthEntity] class from repository', () async {
-      when(() => mockAuthRepository.signInWithGoogle())
-          .thenAnswer((_) async => Right(testEntity));
-      final result = await signInWithGoogleUsecase();
+      when(
+        () => mockAuthRepository.signInWithPhone(testPhone),
+      ).thenAnswer((_) async => Right(testEntity));
+      final result = await signInWithGoogleUsecase(testPhone);
       expect(result, Right(testEntity));
     });
     test('should get [ServerFailure] from repository', () async {
-      when(() => mockAuthRepository.signInWithGoogle())
-          .thenAnswer((_) async => const Left(ServerFailure("")));
-      final result = await signInWithGoogleUsecase();
+      when(
+        () => mockAuthRepository.signInWithPhone(testPhone),
+      ).thenAnswer((_) async => const Left(ServerFailure("")));
+      final result = await signInWithGoogleUsecase(testPhone);
       expect(result, const Left(ServerFailure("")));
     });
   });

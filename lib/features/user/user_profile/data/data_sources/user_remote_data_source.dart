@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../../core/errors/exception.dart';
 import '../models/user_model.dart';
 
+/// 用户管理
 abstract interface class UserRemoteDataSource {
   Future<void> addUserProfile({
     required String uid,

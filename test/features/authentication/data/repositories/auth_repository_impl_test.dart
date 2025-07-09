@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -23,6 +23,7 @@ void main() {
 
   const testEmail = "test@gm.com";
   const testPass = "test12345";
+  const testPhone = "+84909090909";
 
   final voidVal = Future<void>.value();
 
@@ -34,40 +35,51 @@ void main() {
 
   group('Sign Up', () {
     test('should return [AuthEntity] from datasource', () async {
-      when(() => mockAuthRemoteDataSource.signUpWithEmailAndPassword(
-          testEmail, testPass)).thenAnswer((_) async => testModel);
+      when(
+        () => mockAuthRemoteDataSource.signUpWithEmailAndPassword(
+          testEmail,
+          testPass,
+        ),
+      ).thenAnswer((_) async => testModel);
       final result = await authRepositoryImpl.signUpWithEmailAndPassword(
-          testEmail, testPass);
+        testEmail,
+        testPass,
+      );
       result.fold(
         (l) => fail(l.message),
         (r) => expect(r, testModel.toEntity()),
       );
     });
     test('should return [ServerFailure] from datasource', () async {
-      when(() => mockAuthRemoteDataSource.signUpWithEmailAndPassword(
-          testEmail, testPass)).thenThrow(ServerException("fail"));
+      when(
+        () => mockAuthRemoteDataSource.signUpWithEmailAndPassword(
+          testEmail,
+          testPass,
+        ),
+      ).thenThrow(ServerException("fail"));
       final result = await authRepositoryImpl.signUpWithEmailAndPassword(
-          testEmail, testPass);
-      result.fold(
-        (l) => expect(l, const ServerFailure("fail")),
-        (r) => null,
+        testEmail,
+        testPass,
       );
+      result.fold((l) => expect(l, const ServerFailure("fail")), (r) => null);
     });
   });
   group('Sign In with Google', () {
     test('should return [AuthEntity] from datasource', () async {
-      when(() => mockAuthRemoteDataSource.signInWithGoogle())
-          .thenAnswer((_) async => testModel);
-      final result = await authRepositoryImpl.signInWithGoogle();
+      when(
+        () => mockAuthRemoteDataSource.signInWithPhone(testPhone),
+      ).thenAnswer((_) async => testModel);
+      final result = await authRepositoryImpl.signInWithPhone(testPhone);
       result.fold(
         (l) => fail(l.message),
         (r) => expect(r, testModel.toEntity()),
       );
     });
     test('should return [ServerFailure] from datasource', () async {
-      when(() => mockAuthRemoteDataSource.signInWithGoogle())
-          .thenThrow(ServerException("UserCredential not found."));
-      final result = await authRepositoryImpl.signInWithGoogle();
+      when(
+        () => mockAuthRemoteDataSource.signInWithPhone(testPhone),
+      ).thenThrow(ServerException("UserCredential not found."));
+      final result = await authRepositoryImpl.signInWithPhone(testPhone);
       result.fold(
         (l) => expect(l, const ServerFailure("UserCredential not found.")),
         (r) => null,
@@ -76,44 +88,46 @@ void main() {
   });
   group('Sign In', () {
     test('should return [void] from datasource', () async {
-      when(() => mockAuthRemoteDataSource.signInWithEmailAndPassword(
-          testEmail, testPass)).thenAnswer((_) async => Right(voidVal));
+      when(
+        () => mockAuthRemoteDataSource.signInWithEmailAndPassword(
+          testEmail,
+          testPass,
+        ),
+      ).thenAnswer((_) async => Right(voidVal));
       final result = await authRepositoryImpl.signInWithEmailAndPassword(
-          testEmail, testPass);
-      result.fold(
-        (l) => fail(l.message),
-        (_) => voidVal,
+        testEmail,
+        testPass,
       );
+      result.fold((l) => fail(l.message), (_) => voidVal);
     });
     test('should return [ServerFailure] from datasource', () async {
-      when(() => mockAuthRemoteDataSource.signInWithEmailAndPassword(
-          testEmail, testPass)).thenThrow(ServerException("fail"));
+      when(
+        () => mockAuthRemoteDataSource.signInWithEmailAndPassword(
+          testEmail,
+          testPass,
+        ),
+      ).thenThrow(ServerException("fail"));
       final result = await authRepositoryImpl.signInWithEmailAndPassword(
-          testEmail, testPass);
-      result.fold(
-        (l) => expect(l, const ServerFailure("fail")),
-        (_) => null,
+        testEmail,
+        testPass,
       );
+      result.fold((l) => expect(l, const ServerFailure("fail")), (_) => null);
     });
   });
   group('Sign Out', () {
     test('should return [void] from datasource', () async {
-      when(() => mockAuthRemoteDataSource.signOut())
-          .thenAnswer((_) async => Right(voidVal));
+      when(
+        () => mockAuthRemoteDataSource.signOut(),
+      ).thenAnswer((_) async => Right(voidVal));
       final result = await authRepositoryImpl.signOut();
-      result.fold(
-        (l) => fail(l.message),
-        (_) => voidVal,
-      );
+      result.fold((l) => fail(l.message), (_) => voidVal);
     });
     test('should return [ServerFailure] from datasource', () async {
-      when(() => mockAuthRemoteDataSource.signOut())
-          .thenThrow(ServerException("fail"));
+      when(
+        () => mockAuthRemoteDataSource.signOut(),
+      ).thenThrow(ServerException("fail"));
       final result = await authRepositoryImpl.signOut();
-      result.fold(
-        (l) => expect(l, const ServerFailure("fail")),
-        (_) => null,
-      );
+      result.fold((l) => expect(l, const ServerFailure("fail")), (_) => null);
     });
   });
 }

@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../repositories/auth_repository.dart';
 
@@ -7,5 +7,5 @@ class AuthStateChangedUsecase {
 
   AuthStateChangedUsecase({required this.repository});
 
-  Stream<User?> get user => repository.user;
+  User? get user => repository.user;
 }

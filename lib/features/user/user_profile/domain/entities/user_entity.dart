@@ -2,19 +2,46 @@
 import 'package:equatable/equatable.dart';
 
 class UserEntity extends Equatable {
+  /// 用户ID
   final String uid;
+
+  /// 用户名
   final String name;
+
+  /// 邮箱
   final String email;
+
+  /// 登录方式
   final String method;
+
+  /// 头像
   final String? avatar;
+
+  /// 手机号
   final String? phone;
+
+  /// 生日
   final DateTime? birthday;
+
+  /// 性别
   final String? gender;
+
+  /// 积分
   final int point;
+
+  /// 金币
   final int gold;
+
+  /// 打卡日期
   final List<DateTime>? attendance;
+
+  /// 创建时间
   final DateTime? createdDate;
+
+  /// 收藏的单词
   final List<String>? favourites;
+
+  /// 已知的单词
   final List<String>? knowns;
 
   const UserEntity({
@@ -70,19 +97,19 @@ class UserEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        uid,
-        name,
-        email,
-        method,
-        avatar,
-        phone,
-        birthday,
-        gender,
-        point,
-        gold,
-        attendance,
-        createdDate,
-        favourites,
-        knowns,
-      ];
+    uid,
+    name,
+    email,
+    method,
+    avatar,
+    phone,
+    birthday,
+    gender,
+    point,
+    gold,
+    attendance,
+    createdDate,
+    favourites,
+    knowns,
+  ];
 }

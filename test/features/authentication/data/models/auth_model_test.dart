@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vocaday_app/features/authentication/data/models/auth_model.dart';
 import 'package:vocaday_app/features/authentication/domain/entities/auth_entity.dart';
 
@@ -31,10 +31,7 @@ void main() {
       signInMethod: SignInMethod.email,
     );
     expect(
-      testAuthModel.copyWith(
-        uid: 'new uid',
-        signInMethod: SignInMethod.email,
-      ),
+      testAuthModel.copyWith(uid: 'new uid', signInMethod: SignInMethod.email),
       modelCopy,
     );
   });

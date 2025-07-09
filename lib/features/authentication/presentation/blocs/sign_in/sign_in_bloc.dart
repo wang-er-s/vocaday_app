@@ -12,23 +12,21 @@ part 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final SignInWithEmailPasswordUsecase signInWithEmailPasswordUsecase;
-  final SignInWithGoogleUsecase signInWithGoogleUsecase;
+  final SignInWithPhoneUsecase signInWithPhoneUsecase;
 
-  SignInBloc(
-    this.signInWithEmailPasswordUsecase,
-    this.signInWithGoogleUsecase,
-  ) : super(SignInInitialState()) {
+  SignInBloc(this.signInWithEmailPasswordUsecase, this.signInWithPhoneUsecase)
+    : super(SignInInitialState()) {
     on<RequestSignInEvent>(_onRequestSignInEvent);
-    on<RequestSignInGoogleEvent>(_onRequestSignInGoogleEvent);
+    on<RequestSignInPhoneEvent>(_onRequestSignInPhoneEvent);
   }
 
-  Future<void> _onRequestSignInGoogleEvent(
-    RequestSignInGoogleEvent event,
+  Future<void> _onRequestSignInPhoneEvent(
+    RequestSignInPhoneEvent event,
     Emitter<SignInState> emit,
   ) async {
     emit(SignInLoadingState());
 
-    final result = await signInWithGoogleUsecase();
+    final result = await signInWithPhoneUsecase(event.phone);
 
     result.fold(
       (failure) => emit(SignInErrorState(failure.message)),
@@ -42,20 +40,16 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   ) async {
     emit(SignInLoadingState());
     if (event.email.isNotEmpty && event.password.isNotEmpty) {
-      final result = await signInWithEmailPasswordUsecase(
-        (event.email, event.password),
-      );
-
-      result.fold(
-        (failure) {
-          emit(SignInErrorState(failure.message));
-        },
-        (_) => emit(SignInSuccessState()),
-      );
-    } else {
-      emit(SignInErrorState(
-        LocaleKeys.auth_please_enter_and_password.tr(),
+      final result = await signInWithEmailPasswordUsecase((
+        event.email,
+        event.password,
       ));
+
+      result.fold((failure) {
+        emit(SignInErrorState(failure.message));
+      }, (_) => emit(SignInSuccessState()));
+    } else {
+      emit(SignInErrorState(LocaleKeys.auth_please_enter_and_password.tr()));
     }
   }
 }

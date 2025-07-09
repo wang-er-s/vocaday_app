@@ -24,46 +24,44 @@ class SignUpWithEmailPasswordUsecase
 
   @override
   FutureEither<AuthEntity> call((String, String) params) async {
-    final signUpResult =
-        await authRepository.signUpWithEmailAndPassword(params.$1, params.$2);
-
-    return signUpResult.fold(
-      (failure) async => Left(failure),
-      (authEntity) async {
-        if (!authEntity.isNewUser) {
-          return Right(authEntity);
-        }
-
-        final user = authEntity.user;
-
-        final userEntity = UserEntity(
-          uid: authEntity.uid,
-          name: user.displayName ?? UtilFunction.splitFirst(user.email, '@'),
-          email: user.email ?? '',
-          method: authEntity.signInMethod.name,
-          avatar: user.photoURL,
-          phone: user.phoneNumber,
-          birthday: DateTime.now(),
-          createdDate: user.metadata.creationTime,
-        );
-
-        final addUserResult = await userRepository.addUserProfile(userEntity);
-
-        return await addUserResult.fold(
-          (fail) => Left(fail),
-          (_) async {
-            final addCartRes = await cartRepository.createCart(
-              authEntity.uid,
-              CartEntity.empty.copyWith(id: authEntity.uid),
-            );
-
-            return addCartRes.fold(
-              (fail) => Left(fail),
-              (_) => Right(authEntity.copyWith(isNewUser: false)),
-            );
-          },
-        );
-      },
+    final signUpResult = await authRepository.signUpWithEmailAndPassword(
+      params.$1,
+      params.$2,
     );
+
+    return signUpResult.fold((failure) async => Left(failure), (
+      authEntity,
+    ) async {
+      if (!authEntity.isNewUser) {
+        return Right(authEntity);
+      }
+
+      final user = authEntity.user;
+
+      final userEntity = UserEntity(
+        uid: authEntity.uid,
+        name: user.userMetadata?['name'] ?? '',
+        email: user.email ?? '',
+        method: authEntity.signInMethod.name,
+        avatar: user.userMetadata?['avatar'] ?? '',
+        phone: user.phone ?? '',
+        birthday: DateTime.now(),
+        createdDate: DateTime.parse(user.createdAt),
+      );
+
+      final addUserResult = await userRepository.addUserProfile(userEntity);
+
+      return await addUserResult.fold((fail) => Left(fail), (_) async {
+        final addCartRes = await cartRepository.createCart(
+          authEntity.uid,
+          CartEntity.empty.copyWith(id: authEntity.uid),
+        );
+
+        return addCartRes.fold(
+          (fail) => Left(fail),
+          (_) => Right(authEntity.copyWith(isNewUser: false)),
+        );
+      });
+    });
   }
 }

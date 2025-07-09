@@ -4,8 +4,8 @@
   "metadata": {
     "version": "2.0.0",
     "description": "project 级资源注册表",
-    "createdAt": "2025-06-29T15:11:42.437Z",
-    "updatedAt": "2025-06-29T15:11:42.439Z",
+    "createdAt": "2025-07-09T14:36:56.087Z",
+    "updatedAt": "2025-07-09T14:36:56.088Z",
     "resourceCount": 4
   },
   "resources": [
@@ -17,9 +17,9 @@
       "description": "专业角色，提供特定领域的专业能力",
       "reference": "@project://.promptx/resource/domain/flutter-developer/flutter-developer.role.md",
       "metadata": {
-        "createdAt": "2025-06-29T15:11:42.438Z",
-        "updatedAt": "2025-06-29T15:11:42.438Z",
-        "scannedAt": "2025-06-29T15:11:42.438Z"
+        "createdAt": "2025-07-09T14:36:56.087Z",
+        "updatedAt": "2025-07-09T14:36:56.087Z",
+        "scannedAt": "2025-07-09T14:36:56.087Z"
       }
     },
     {
@@ -30,9 +30,9 @@
       "description": "思维模式，指导AI的思考方式",
       "reference": "@project://.promptx/resource/domain/flutter-developer/thought/flutter-thinking.thought.md",
       "metadata": {
-        "createdAt": "2025-06-29T15:11:42.438Z",
-        "updatedAt": "2025-06-29T15:11:42.438Z",
-        "scannedAt": "2025-06-29T15:11:42.438Z"
+        "createdAt": "2025-07-09T14:36:56.088Z",
+        "updatedAt": "2025-07-09T14:36:56.088Z",
+        "scannedAt": "2025-07-09T14:36:56.088Z"
       }
     },
     {
@@ -43,9 +43,9 @@
       "description": "执行模式，定义具体的行为模式",
       "reference": "@project://.promptx/resource/domain/flutter-developer/execution/flutter-development.execution.md",
       "metadata": {
-        "createdAt": "2025-06-29T15:11:42.439Z",
-        "updatedAt": "2025-06-29T15:11:42.439Z",
-        "scannedAt": "2025-06-29T15:11:42.439Z"
+        "createdAt": "2025-07-09T14:36:56.088Z",
+        "updatedAt": "2025-07-09T14:36:56.088Z",
+        "scannedAt": "2025-07-09T14:36:56.088Z"
       }
     },
     {
@@ -56,9 +56,9 @@
       "description": "知识库，提供专业知识和信息",
       "reference": "@project://.promptx/resource/domain/flutter-developer/knowledge/flutter-expertise.knowledge.md",
       "metadata": {
-        "createdAt": "2025-06-29T15:11:42.439Z",
-        "updatedAt": "2025-06-29T15:11:42.439Z",
-        "scannedAt": "2025-06-29T15:11:42.439Z"
+        "createdAt": "2025-07-09T14:36:56.088Z",
+        "updatedAt": "2025-07-09T14:36:56.088Z",
+        "scannedAt": "2025-07-09T14:36:56.088Z"
       }
     }
   ],

@@ -17,4 +17,11 @@ final class RequestSignInEvent extends SignInEvent {
   List<Object> get props => [email, password];
 }
 
-final class RequestSignInGoogleEvent extends SignInEvent {}
+final class RequestSignInPhoneEvent extends SignInEvent {
+  final String phone;
+
+  const RequestSignInPhoneEvent({required this.phone});
+
+  @override
+  List<Object> get props => [phone];
+}

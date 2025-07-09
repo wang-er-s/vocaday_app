@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vocaday_app/core/errors/failure.dart';
 import 'package:vocaday_app/features/authentication/data/models/auth_model.dart';
 import 'package:vocaday_app/features/authentication/domain/entities/auth_entity.dart';
@@ -48,18 +48,25 @@ void main() {
 
   group('Sign Up Usecase', () {
     test('should return [AuthEntity] class from repository', () async {
-      when(() => mockAuthRepository.signUpWithEmailAndPassword(
-          testEmail, testPass)).thenAnswer((_) async => Right(testEntity));
-      final result =
-          await signUpWithEmailPasswordUsecase((testEmail, testPass));
+      when(
+        () =>
+            mockAuthRepository.signUpWithEmailAndPassword(testEmail, testPass),
+      ).thenAnswer((_) async => Right(testEntity));
+      final result = await signUpWithEmailPasswordUsecase((
+        testEmail,
+        testPass,
+      ));
       expect(result, Right(testEntity));
     });
     test('should return [ServerFailure] from repository', () async {
-      when(() => mockAuthRepository.signUpWithEmailAndPassword(
-              testEmail, testPass))
-          .thenAnswer((_) async => const Left(ServerFailure("Weak password")));
-      final result =
-          await signUpWithEmailPasswordUsecase((testEmail, testPass));
+      when(
+        () =>
+            mockAuthRepository.signUpWithEmailAndPassword(testEmail, testPass),
+      ).thenAnswer((_) async => const Left(ServerFailure("Weak password")));
+      final result = await signUpWithEmailPasswordUsecase((
+        testEmail,
+        testPass,
+      ));
       expect(result, const Left(ServerFailure("Weak password")));
     });
   });

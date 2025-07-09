@@ -38,17 +38,13 @@ class _KnownWordPageState extends State<KnownWordPage> {
     Duration delay = Durations.long4,
   }) async {
     Navigators().showLoading(
-      tasks: [
-        context.read<KnownWordCubit>().getAllKnownWords(),
-      ],
+      tasks: [context.read<KnownWordCubit>().getAllKnownWords()],
       delay: delay,
     );
   }
 
   void _onOpenWordDetail(BuildContext context, WordEntity entity) {
-    context.showBottomSheet(
-      child: WordDetailBottomSheet(wordEntity: entity),
-    );
+    context.showBottomSheet(child: WordDetailBottomSheet(wordEntity: entity));
   }
 
   Future<void> _onSearch(BuildContext context, String input) async {
@@ -62,9 +58,10 @@ class _KnownWordPageState extends State<KnownWordPage> {
   }
 
   Future<void> _onRemoveItem(String word) async {
-    await Navigators().showLoading(tasks: [
-      sl<SharedPrefManager>().removeKnownWord(word),
-    ], delay: Durations.medium2);
+    await Navigators().showLoading(
+      tasks: [sl<SharedPrefManager>().removeKnownWord(word)],
+      delay: Durations.medium2,
+    );
     knownNotifier.value = List<WordEntity>.from(knownNotifier.value)
       ..removeWhere((e) => e.word == word);
   }
@@ -75,7 +72,7 @@ class _KnownWordPageState extends State<KnownWordPage> {
       subtitle: LocaleKeys.known_clear_all_content.tr(),
       acceptText: LocaleKeys.common_accept.tr(),
       onAccept: () async {
-        final uid = context.read<AuthBloc>().state.user?.uid;
+        final uid = context.read<AuthBloc>().state.user?.id;
         if (uid != null) {
           await context.read<KnownWordCubit>().removeAllKnowns(uid);
           knownNotifier.value = [];
@@ -85,7 +82,7 @@ class _KnownWordPageState extends State<KnownWordPage> {
   }
 
   Future<void> _onSyncData(BuildContext context) async {
-    final uid = context.read<AuthBloc>().state.user?.uid;
+    final uid = context.read<AuthBloc>().state.user?.id;
     if (uid != null) {
       final result = await context.read<KnownWordCubit>().syncKnowns(uid);
       if (result) {
@@ -149,9 +146,7 @@ class _KnownWordPageState extends State<KnownWordPage> {
                         onSearch: (value) => _onSearch(context, value),
                       ),
                     ),
-                    Expanded(
-                      child: _buildKnownWords(),
-                    ),
+                    Expanded(child: _buildKnownWords()),
                   ],
                 ),
               );
@@ -200,10 +195,7 @@ class _KnownWordPageState extends State<KnownWordPage> {
         children: [
           Padding(
             padding: EdgeInsets.only(right: 15.w),
-            child: Icon(
-              icon,
-              color: context.theme.primaryColor,
-            ),
+            child: Icon(icon, color: context.theme.primaryColor),
           ),
           Expanded(
             child: TextCustom(

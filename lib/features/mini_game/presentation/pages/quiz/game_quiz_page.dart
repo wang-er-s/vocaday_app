@@ -61,42 +61,39 @@ class _GameQuizPageState extends State<GameQuizPage> {
 
     timeDuration = AppValueConst.timeForQuiz * widget.words.length;
     final list = widget.words.map((e) => e.word).toList();
-    quizs = List<QuizEntity>.generate(
-      widget.words.length,
-      (index) {
-        final answers = List<String>.from(list)
-          ..remove(widget.words[index].word)
-          ..shuffle();
-        final meaningEntity = widget.words[index].meanings.getRandom ??
-            widget.words[index].meanings.first;
+    quizs = List<QuizEntity>.generate(widget.words.length, (index) {
+      final answers = List<String>.from(list)
+        ..remove(widget.words[index].word)
+        ..shuffle();
+      final meaningEntity =
+          widget.words[index].meanings.getRandom ??
+          widget.words[index].meanings.first;
 
-        return QuizEntity(
-          word: widget.words[index].word,
-          question:
-              "(${meaningEntity.type.toLowerCase()}) ${meaningEntity.meaning}",
-          answers: answers.take(3).toList()
-            ..insert(
-              Random().nextInt(4),
-              widget.words[index].word,
-            ),
-        );
-      },
-    );
+      return QuizEntity(
+        word: widget.words[index].word,
+        question:
+            "(${meaningEntity.type.toLowerCase()}) ${meaningEntity.meaning}",
+        answers: answers.take(3).toList()
+          ..insert(Random().nextInt(4), widget.words[index].word),
+      );
+    });
   }
 
-  _onCompleteQuiz(BuildContext context) async {
-    final correct =
-        quizs.where((element) => element.selectedAnswer == element.word).length;
-    final gold = correct ~/ AppValueConst.minWordInBagToPlay +
+  Future<void> _onCompleteQuiz(BuildContext context) async {
+    final correct = quizs
+        .where((element) => element.selectedAnswer == element.word)
+        .length;
+    final gold =
+        correct ~/ AppValueConst.minWordInBagToPlay +
         (correct == quizs.length ? 2 : 0);
 
-    final uid = context.read<AuthBloc>().state.user?.uid;
+    final uid = context.read<AuthBloc>().state.user?.id;
     if (uid != null) {
       await context.read<GameQuizCubit>().calculateResult(
-            uid: uid,
-            point: correct,
-            gold: gold,
-          );
+        uid: uid,
+        point: correct,
+        gold: gold,
+      );
     }
   }
 
@@ -111,7 +108,7 @@ class _GameQuizPageState extends State<GameQuizPage> {
     }
   }
 
-  _onBack() async {
+  Future<void> _onBack() async {
     final res = await Navigators().showDialogWithButton(
       title: LocaleKeys.game_quit_message.tr(),
       acceptText: LocaleKeys.common_yes_ofc.tr(),
@@ -128,69 +125,75 @@ class _GameQuizPageState extends State<GameQuizPage> {
       onPopInvoked: (_) => _onBack(),
       child: BlocProvider(
         create: (_) => sl<GameQuizCubit>(),
-        child: Builder(builder: (context) {
-          return StatusBar(
-            child: BlocBuilder<GameQuizCubit, GameQuizState>(
-              builder: (context, state) {
-                if (state.status == GameQuizStatus.loading) {
+        child: Builder(
+          builder: (context) {
+            return StatusBar(
+              child: BlocBuilder<GameQuizCubit, GameQuizState>(
+                builder: (context, state) {
+                  if (state.status == GameQuizStatus.loading) {
+                    return Scaffold(
+                      backgroundColor: context.colors.blue900.darken(.05),
+                      body: const LoadingIndicatorPage(),
+                    );
+                  }
+                  if (state.status == GameQuizStatus.error) {
+                    return Scaffold(
+                      backgroundColor: context.colors.blue900.darken(.05),
+                      body: ErrorPage(text: state.message ?? ''),
+                    );
+                  }
+                  if (state.status == GameQuizStatus.success) {
+                    final correct = quizs
+                        .where((e) => e.selectedAnswer == e.word)
+                        .length;
+
+                    return _buildSuccess(context, correct);
+                  }
+
                   return Scaffold(
                     backgroundColor: context.colors.blue900.darken(.05),
-                    body: const LoadingIndicatorPage(),
-                  );
-                }
-                if (state.status == GameQuizStatus.error) {
-                  return Scaffold(
-                    backgroundColor: context.colors.blue900.darken(.05),
-                    body: ErrorPage(text: state.message ?? ''),
-                  );
-                }
-                if (state.status == GameQuizStatus.success) {
-                  final correct =
-                      quizs.where((e) => e.selectedAnswer == e.word).length;
-
-                  return _buildSuccess(context, correct);
-                }
-
-                return Scaffold(
-                  backgroundColor: context.colors.blue900.darken(.05),
-                  appBar: _buildAppBar(context),
-                  body: SingleChildScrollView(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20.w, vertical: 3.h),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ValueListenableBuilder(
-                            valueListenable: currentQuestion,
-                            builder: (context, value, _) {
-                              return LinearProgressIndicator(
-                                value: (value + 1) / quizs.length,
-                                color: context.colors.green,
-                                backgroundColor:
-                                    context.colors.grey.withOpacity(.15),
-                                borderRadius: BorderRadius.circular(8.r),
-                                minHeight: 12.h,
-                              );
-                            },
-                          ),
-                          const Gap(height: 20),
-                          _buildCardQuestionAnswer(context),
-                        ],
+                    appBar: _buildAppBar(context),
+                    body: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.w,
+                          vertical: 3.h,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: currentQuestion,
+                              builder: (context, value, _) {
+                                return LinearProgressIndicator(
+                                  value: (value + 1) / quizs.length,
+                                  color: context.colors.green,
+                                  backgroundColor: context.colors.grey
+                                      .withOpacity(.15),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  minHeight: 12.h,
+                                );
+                              },
+                            ),
+                            const Gap(height: 20),
+                            _buildCardQuestionAnswer(context),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
-          );
-        }),
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildSuccess(BuildContext context, int correct) {
-    final gold = correct ~/ AppValueConst.minWordInBagToPlay +
+    final gold =
+        correct ~/ AppValueConst.minWordInBagToPlay +
         (correct == quizs.length ? 2 : 0);
     return Scaffold(
       backgroundColor: context.colors.blue900.darken(.05),
@@ -320,18 +323,20 @@ class _GameQuizPageState extends State<GameQuizPage> {
                 valueListenable: selectedIndex,
                 builder: (context, selected, _) {
                   return Column(
-                    children: quizs[current]
-                        .answers
-                        .mapIndexed((index, e) => SelectOptionTileWidget(
-                              onTap: () {
-                                quizs[current].selectedAnswer = e;
-                                selectedIndex.value = index;
-                              },
-                              isSelected: quizs[current].selectedAnswer == e ||
-                                  selected == index,
-                              style: context.textStyle.bodyS.bw.bold,
-                              text: e.toLowerCase(),
-                            ))
+                    children: quizs[current].answers
+                        .mapIndexed(
+                          (index, e) => SelectOptionTileWidget(
+                            onTap: () {
+                              quizs[current].selectedAnswer = e;
+                              selectedIndex.value = index;
+                            },
+                            isSelected:
+                                quizs[current].selectedAnswer == e ||
+                                selected == index,
+                            style: context.textStyle.bodyS.bw.bold,
+                            text: e.toLowerCase(),
+                          ),
+                        )
                         .toList(),
                   );
                 },
@@ -374,7 +379,8 @@ class _GameQuizPageState extends State<GameQuizPage> {
                 child: PushableButton(
                   onPressed: () => _onNextQuiz(context, current),
                   width: context.screenWidth / 3,
-                  type: quizs[current].selectedAnswer.isNotEmpty ||
+                  type:
+                      quizs[current].selectedAnswer.isNotEmpty ||
                           current == quizs.length - 1
                       ? PushableButtonType.primary
                       : PushableButtonType.grey,

@@ -1,20 +1,13 @@
-import 'dart:async';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../../core/errors/exception.dart';
-import '../../../../config/app_logger.dart';
 import '../models/auth_model.dart';
 
 abstract interface class AuthRemoteDataSource {
-  /// Throw [FirebaseAuthException] for all Firebase errors
-  /// Throw [ServerException] for unexpected errors
-  Stream<User?> get user;
+  User? get user;
   Future<AuthModel> signUpWithEmailAndPassword(String email, String password);
   Future<void> signInWithEmailAndPassword(String email, String password);
-  Future<AuthModel> signInWithGoogle();
+  Future<AuthModel> signInWithPhone(String phone);
   Future<void> signOut();
   Future<void> updatePassword(String password);
   Future<void> reauthenticateWithCredential(String email, String password);
@@ -23,12 +16,12 @@ abstract interface class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final FirebaseAuth _auth;
+  final SupabaseClient _supabase;
 
-  AuthRemoteDataSourceImpl(this._auth);
+  AuthRemoteDataSourceImpl(this._supabase);
 
   @override
-  Stream<User?> get user => _auth.authStateChanges();
+  User? get user => _supabase.auth.currentUser;
 
   @override
   Future<AuthModel> signUpWithEmailAndPassword(
@@ -36,32 +29,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String password,
   ) async {
     try {
-      final userCredential = await _auth.createUserWithEmailAndPassword(
+      final AuthResponse res = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
       );
-
-      final User? user = userCredential.user;
+      final Session? session = res.session;
+      final User? user = res.user;
 
       if (user == null) {
         throw ServerException("UserCredential not found.");
       }
 
-      final providers = user.providerData
-          .map((info) => info.providerId)
-          .toList();
-
-      final authModel = AuthModel(uid: userCredential.user!.uid, user: user)
-          .copyWith(
-            isNewUser: true,
-            signInMethod: providers.contains("password")
-                ? SignInMethod.email
-                : null,
-          );
+      final authModel = AuthModel(
+        uid: user.id,
+        user: user,
+        isNewUser: true,
+        signInMethod: SignInMethod.email,
+      );
 
       return authModel;
-    } on FirebaseAuthException {
-      rethrow;
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -70,53 +56,45 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> signInWithEmailAndPassword(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-    } on FirebaseAuthException {
-      rethrow;
+      final AuthResponse res = await _supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+      final Session? session = res.session;
+      final User? user = res.user;
+
+      if (user == null) {
+        throw ServerException("UserCredential not found.");
+      }
     } catch (e) {
       throw ServerException(e.toString());
     }
   }
 
   @override
-  Future<AuthModel> signInWithGoogle() async {
+  Future<AuthModel> signInWithPhone(String phone) async {
     try {
-      if (true) {
-        final credential = GoogleAuthProvider.credential(
-          accessToken: "accessToken",
-          idToken: "idToken",
-        );
+      final AuthResponse res = await _supabase.auth.signInWithPassword(
+        phone: phone,
+        password: "",
+      );
+      final Session? session = res.session;
+      final User? user = res.user;
 
-        final UserCredential userCredential = await _auth.signInWithCredential(
-          credential,
-        );
-
-        final User? user = userCredential.user;
-
-        if (user == null) {
-          throw ServerException("UserCredential not found.");
-        }
-
-        final providers = user.providerData
-            .map((info) => info.providerId)
-            .toList();
-
-        final authModel = AuthModel(uid: user.uid, user: user).copyWith(
-          isNewUser: userCredential.additionalUserInfo!.isNewUser,
-          signInMethod: providers.contains("google.com")
-              ? SignInMethod.google
-              : null,
-        );
-
-        return authModel;
-      } else {
-        logger.e("Cancel Google sign in form.");
-        throw ServerException("GoogleSignInAccount not found.");
+      if (user == null) {
+        throw ServerException("UserCredential not found.");
       }
+
+      final authModel = AuthModel(
+        uid: user.id,
+        user: user,
+        isNewUser: true,
+        signInMethod: SignInMethod.phone,
+      );
+
+      return authModel;
     } on PlatformException catch (e) {
       throw ServerException(e.message ?? 'PlatformException');
-    } on FirebaseAuthException {
-      rethrow;
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -125,9 +103,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> signOut() async {
     try {
-      await _auth.signOut();
-    } on FirebaseAuthException {
-      rethrow;
+      await _supabase.auth.signOut();
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -139,11 +115,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String password,
   ) async {
     try {
-      await _auth.currentUser?.reauthenticateWithCredential(
-        EmailAuthProvider.credential(email: email, password: password),
-      );
-    } on FirebaseAuthException {
-      rethrow;
+      await _supabase.auth.reauthenticate();
     } on UnimplementedError catch (e) {
       throw ServerException(e.message ?? 'reauthenticateWithCredential');
     }
@@ -152,9 +124,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> updatePassword(String password) async {
     try {
-      await _auth.currentUser?.updatePassword(password);
-    } on FirebaseAuthException {
-      rethrow;
+      await _supabase.auth.updateUser(UserAttributes(password: password));
     } on UnimplementedError catch (e) {
       throw ServerException(e.message ?? 'reauthenticateWithCredential');
     }
@@ -163,9 +133,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> sendCodeToEmail(String email) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException {
-      rethrow;
+      await _supabase.auth.reauthenticate();
     } on UnimplementedError catch (e) {
       throw ServerException(e.message ?? 'sendCodeToEmail');
     }
@@ -174,9 +142,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> deleteUserAuth() async {
     try {
-      await _auth.currentUser?.delete();
-    } on FirebaseAuthException {
-      rethrow;
+      final user = _supabase.auth.currentUser;
+      if (user != null) {
+        await _supabase.auth.admin.deleteUser(user.id);
+      }
     } on UnimplementedError catch (e) {
       throw ServerException(e.message ?? 'deleteUserAuth');
     }

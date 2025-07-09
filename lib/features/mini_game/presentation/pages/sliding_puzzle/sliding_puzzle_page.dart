@@ -27,10 +27,7 @@ import '../../cubits/sliding_puzzle/sliding_puzzle_cubit.dart';
 import 'widgets/sliding_puzzle_board.dart';
 
 class SlidingPuzzlePage extends StatelessWidget {
-  SlidingPuzzlePage({
-    super.key,
-    required this.words,
-  });
+  SlidingPuzzlePage({super.key, required this.words});
 
   final List<WordEntity> words;
   final List<String> cowMsg = [
@@ -40,7 +37,7 @@ class SlidingPuzzlePage extends StatelessWidget {
     LocaleKeys.game_well_done.tr(),
   ];
 
-  _onBack() async {
+  Future<void> _onBack() async {
     final res = await Navigators().showDialogWithButton(
       title: LocaleKeys.game_quit_message.tr(),
       acceptText: LocaleKeys.common_yes_ofc.tr(),
@@ -50,7 +47,7 @@ class SlidingPuzzlePage extends StatelessWidget {
     }
   }
 
-  _openSetting(BuildContext context) {
+  void _openSetting(BuildContext context) {
     final cubit = context.read<SlidingPuzzleCubit>();
     Navigators().showDialogWithButton(
       showIcon: false,
@@ -75,14 +72,15 @@ class SlidingPuzzlePage extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                          child: TextCustom(
-                        LocaleKeys.game_background_music.tr(),
-                        style: context.textStyle.bodyL.bold.bw,
-                        maxLines: 2,
-                      )),
+                        child: TextCustom(
+                          LocaleKeys.game_background_music.tr(),
+                          style: context.textStyle.bodyL.bold.bw,
+                          maxLines: 2,
+                        ),
+                      ),
                       CupertinoSwitch(
                         value: state.playMusic,
-                        activeColor: context.theme.primaryColor,
+                        activeTrackColor: context.theme.primaryColor,
                         onChanged: (value) => context
                             .read<SlidingPuzzleCubit>()
                             .onPlayMusic(value),
@@ -93,14 +91,15 @@ class SlidingPuzzlePage extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                          child: TextCustom(
-                        LocaleKeys.game_sound_effect.tr(),
-                        style: context.textStyle.bodyL.bold.bw,
-                        maxLines: 2,
-                      )),
+                        child: TextCustom(
+                          LocaleKeys.game_sound_effect.tr(),
+                          style: context.textStyle.bodyL.bold.bw,
+                          maxLines: 2,
+                        ),
+                      ),
                       CupertinoSwitch(
                         value: state.playSound,
-                        activeColor: context.theme.primaryColor,
+                        activeTrackColor: context.theme.primaryColor,
                         onChanged: (value) => context
                             .read<SlidingPuzzleCubit>()
                             .onPlaySound(value),
@@ -116,9 +115,10 @@ class SlidingPuzzlePage extends StatelessWidget {
     );
   }
 
-  _onTapCow(BuildContext context, SlidingPuzzleState state) {
+  void _onTapCow(BuildContext context, SlidingPuzzleState state) {
     final word = words[state.index].word;
-    final meaning = words[state.index].meanings.getRandom?.meaning ??
+    final meaning =
+        words[state.index].meanings.getRandom?.meaning ??
         words[state.index].meanings.first.meaning;
     Navigators().showDialogWithButton(
       showIcon: false,
@@ -131,9 +131,7 @@ class SlidingPuzzlePage extends StatelessWidget {
             LocaleKeys.game_hint.tr(),
             style: context.textStyle.titleS.bold.bw,
           ),
-          DashedLineCustom(
-            margin: EdgeInsets.symmetric(vertical: 15.h),
-          ),
+          DashedLineCustom(margin: EdgeInsets.symmetric(vertical: 15.h)),
           TextCustom(
             "${meaning.capitalizeFirstLetter}.",
             style: context.textStyle.bodyM.bw,
@@ -162,54 +160,62 @@ class SlidingPuzzlePage extends StatelessWidget {
       onPopInvoked: (_) => _onBack(),
       child: BlocProvider(
         create: (_) => SlidingPuzzleCubit(
-          uid: context.read<AuthBloc>().state.user?.uid,
+          uid: context.read<AuthBloc>().state.user?.id,
           words: words,
           updateUserPointUsecase: sl<UpdateUserPointUsecase>(),
           updateUserGoldUsecase: sl<UpdateUserGoldUsecase>(),
           sharedPrefManager: sl<SharedPrefManager>(),
         )..generateList(),
-        child: Builder(builder: (context) {
-          return Scaffold(
-            backgroundColor: context.colors.blue900.darken(.05),
-            appBar: _buildAppBar(context),
-            body: BlocBuilder<SlidingPuzzleCubit, SlidingPuzzleState>(
-              builder: (context, state) {
-                if (state.status == SlidingPuzzleStatus.loading) {
-                  return Center(
-                      child: LottieBuilder.asset(Assets.jsons.loadingSandClock,
-                          width: context.screenWidth / 4));
-                }
-                if (state.status == SlidingPuzzleStatus.error) {
-                  return ErrorPage(text: state.message ?? '');
-                }
-                if (state.status == SlidingPuzzleStatus.loaded) {
-                  return Column(
-                    children: [
-                      Expanded(
-                        flex: 6,
-                        child: SlidingPuzzleBoardWidget(
-                          gridSize: state.gridSize,
-                          word: words[state.index].word,
-                          list: state.list.map((e) => e.toUpperCase()).toList(),
-                          onTap:
-                              context.read<SlidingPuzzleCubit>().gridItemClick,
+        child: Builder(
+          builder: (context) {
+            return Scaffold(
+              backgroundColor: context.colors.blue900.darken(.05),
+              appBar: _buildAppBar(context),
+              body: BlocBuilder<SlidingPuzzleCubit, SlidingPuzzleState>(
+                builder: (context, state) {
+                  if (state.status == SlidingPuzzleStatus.loading) {
+                    return Center(
+                      child: LottieBuilder.asset(
+                        Assets.jsons.loadingSandClock,
+                        width: context.screenWidth / 4,
+                      ),
+                    );
+                  }
+                  if (state.status == SlidingPuzzleStatus.error) {
+                    return ErrorPage(text: state.message ?? '');
+                  }
+                  if (state.status == SlidingPuzzleStatus.loaded) {
+                    return Column(
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: SlidingPuzzleBoardWidget(
+                            gridSize: state.gridSize,
+                            word: words[state.index].word,
+                            list: state.list
+                                .map((e) => e.toUpperCase())
+                                .toList(),
+                            onTap: context
+                                .read<SlidingPuzzleCubit>()
+                                .gridItemClick,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 4,
-                        child: _buildControls(state, context),
-                      ),
-                    ],
-                  );
-                }
-                if (state.status == SlidingPuzzleStatus.done) {
-                  return _buildSuccess(context, state.count);
-                }
-                return Container();
-              },
-            ),
-          );
-        }),
+                        Expanded(
+                          flex: 4,
+                          child: _buildControls(state, context),
+                        ),
+                      ],
+                    );
+                  }
+                  if (state.status == SlidingPuzzleStatus.done) {
+                    return _buildSuccess(context, state.count);
+                  }
+                  return Container();
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -292,9 +298,7 @@ class SlidingPuzzlePage extends StatelessWidget {
               ? const SizedBox()
               : BackButton(
                   color: context.colors.white,
-                  style: ButtonStyle(
-                    iconSize: WidgetStateProperty.all(24.r),
-                  ),
+                  style: ButtonStyle(iconSize: WidgetStateProperty.all(24.r)),
                 );
         },
       ),
@@ -356,12 +360,14 @@ class SlidingPuzzlePage extends StatelessWidget {
                     left: 0,
                     child: Container(
                       width: context.screenWidth / 4,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 3.h,
+                      ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.r).copyWith(
-                          bottomRight: const Radius.circular(0),
-                        ),
+                        borderRadius: BorderRadius.circular(
+                          6.r,
+                        ).copyWith(bottomRight: const Radius.circular(0)),
                         color: context.theme.cardColor,
                       ),
                       child: TextCustom(
@@ -389,14 +395,17 @@ class SlidingPuzzlePage extends StatelessWidget {
               ),
               child: TextCustom(
                 state.isCompleted
-                    ? state.list
-                        .join()
-                        .substring(0, words[state.index].word.length)
-                    : state.list
-                        .join()
-                        .replaceAll(AppStringConst.slidingPuzzleEmpty, "_"),
-                style: context.textStyle.titleM.bold.white
-                    .copyWith(letterSpacing: 5),
+                    ? state.list.join().substring(
+                        0,
+                        words[state.index].word.length,
+                      )
+                    : state.list.join().replaceAll(
+                        AppStringConst.slidingPuzzleEmpty,
+                        "_",
+                      ),
+                style: context.textStyle.titleM.bold.white.copyWith(
+                  letterSpacing: 5,
+                ),
                 textAlign: TextAlign.center,
                 maxLines: 3,
               ),
@@ -419,7 +428,7 @@ class SlidingPuzzlePage extends StatelessWidget {
                   style: context.textStyle.bodyL.bold.grey80,
                 ),
               ),
-            ]
+            ],
           ],
         ),
       ),

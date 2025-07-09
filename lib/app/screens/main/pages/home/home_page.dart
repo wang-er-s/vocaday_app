@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage>
     }
   }
 
-  _onCompleteTutorialCoachMark() async {
+  Future<void> _onCompleteTutorialCoachMark() async {
     await sl<SharedPrefManager>().saveCoachMarkHome();
   }
 
@@ -83,12 +83,13 @@ class _HomePageState extends State<HomePage>
                 builder: (context, controller) {
                   return CustomCoachMessageWidget(
                     title: LocaleKeys.tutorial_word_bag_title.tr(),
-                    subTitle:
-                        LocaleKeys.tutorial_word_bag_subtitle.tr().fixBreakLine,
+                    subTitle: LocaleKeys.tutorial_word_bag_subtitle
+                        .tr()
+                        .fixBreakLine,
                     onNext: () => controller.next(),
                   );
                 },
-              )
+              ),
             ],
           ),
           TargetFocus(
@@ -105,17 +106,19 @@ class _HomePageState extends State<HomePage>
                     title: LocaleKeys.tutorial_check_in_title.tr(),
                     subTitle: LocaleKeys.tutorial_check_in_subtitle.tr(
                       args: [
-                        LocaleKeys.user_data_point
-                            .plural(AppValueConst.attendancePoint),
-                        LocaleKeys.user_data_gold
-                            .plural(AppValueConst.attendanceGold),
+                        LocaleKeys.user_data_point.plural(
+                          AppValueConst.attendancePoint,
+                        ),
+                        LocaleKeys.user_data_gold.plural(
+                          AppValueConst.attendanceGold,
+                        ),
                       ],
                     ),
                     onNext: () => controller.next(),
                     onPrevious: () => controller.previous(),
                   );
                 },
-              )
+              ),
             ],
           ),
           TargetFocus(
@@ -136,25 +139,21 @@ class _HomePageState extends State<HomePage>
                     onPrevious: () => controller.previous(),
                   );
                 },
-              )
+              ),
             ],
           ),
         ]),
     )..show(context: context);
   }
 
-  _onOpenCalendar() {
-    context.showBottomSheet(
-      child: const HomeCheckInBottomSheet(),
-    );
+  void _onOpenCalendar() {
+    context.showBottomSheet(child: const HomeCheckInBottomSheet());
   }
 
   Future<void> _onRefresh(BuildContext context) async {
     Navigators().showLoading(
       delay: Durations.extralong4,
-      tasks: [
-        context.read<LeaderBoardCubit>().getListUsers(),
-      ],
+      tasks: [context.read<LeaderBoardCubit>().getListUsers()],
       onFinish: Navigators().showMessage(
         LocaleKeys.profile_everything_is_up_to_date.tr(),
         type: MessageType.success,
@@ -165,52 +164,52 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocProvider(
+    return BlocProvider<LeaderBoardCubit>(
       create: (_) => sl<LeaderBoardCubit>()..getListUsers(),
-      child: Builder(builder: (context) {
-        return Scaffold(
-          backgroundColor: context.backgroundColor,
-          appBar: AppBarCustom(
-            child: HomeTopAppBar(bagKey: _bagKey),
-          ),
-          body: SliverTabView(
-            onRefresh: () => _onRefresh(context),
-            numberOfTabs: 2,
-            padding: 20,
-            // physics: const BouncingScrollPhysics(),
-            topChild: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _HomeTextTitle(LocaleKeys.home_general.tr()),
-                const Gap(height: 20),
-                GestureDetector(
-                  key: _attendaceKey,
-                  onTap: _onOpenCalendar,
-                  child: const CheckInPanel(),
-                ),
-                const Gap(height: 20),
-                _HomeTextTitle(LocaleKeys.home_every_day_new_word.tr()),
-                const Gap(height: 20),
-                MainNewWordPanelWidget(key: _dailyWordKey),
-                const Gap(height: 20),
-                _HomeTextTitle(LocaleKeys.home_leaderboard.tr()),
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            backgroundColor: context.backgroundColor,
+            appBar: AppBarCustom(child: HomeTopAppBar(bagKey: _bagKey)),
+            body: SliverTabView(
+              onRefresh: () => _onRefresh(context),
+              numberOfTabs: 2,
+              padding: 20,
+              // physics: const BouncingScrollPhysics(),
+              topChild: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _HomeTextTitle(LocaleKeys.home_general.tr()),
+                  const Gap(height: 20),
+                  GestureDetector(
+                    key: _attendaceKey,
+                    onTap: _onOpenCalendar,
+                    child: const CheckInPanel(),
+                  ),
+                  const Gap(height: 20),
+                  _HomeTextTitle(LocaleKeys.home_every_day_new_word.tr()),
+                  const Gap(height: 20),
+                  MainNewWordPanelWidget(key: _dailyWordKey),
+                  const Gap(height: 20),
+                  _HomeTextTitle(LocaleKeys.home_leaderboard.tr()),
+                ],
+              ),
+              tabs: [
+                Tab(text: LocaleKeys.home_tab_points.tr()),
+                Tab(text: LocaleKeys.home_tab_attendances.tr()),
               ],
+              tabBarView: const TabBarView(
+                physics: ClampingScrollPhysics(),
+                children: [
+                  HomeLeaderboardPage(type: LeaderboardType.point),
+                  HomeLeaderboardPage(type: LeaderboardType.attendance),
+                ],
+              ),
             ),
-            tabs: [
-              Tab(text: LocaleKeys.home_tab_points.tr()),
-              Tab(text: LocaleKeys.home_tab_attendances.tr()),
-            ],
-            tabBarView: const TabBarView(
-              physics: ClampingScrollPhysics(),
-              children: [
-                HomeLeaderboardPage(type: LeaderboardType.point),
-                HomeLeaderboardPage(type: LeaderboardType.attendance),
-              ],
-            ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }

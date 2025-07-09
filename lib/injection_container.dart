@@ -137,16 +137,10 @@ Future<void> setUpServiceLocator() async {
     () => AuthRemoteDataSourceImpl(sl()),
   );
   // Repository
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   // Usecase
-  sl.registerLazySingleton(
-    () => AuthStateChangedUsecase(repository: sl()),
-  );
-  sl.registerLazySingleton(
-    () => SignOutUsecase(sl(), sl()),
-  );
+  sl.registerLazySingleton(() => AuthStateChangedUsecase(repository: sl()));
+  sl.registerLazySingleton(() => SignOutUsecase(sl(), sl()));
   sl.registerLazySingleton(
     () => SignUpWithEmailPasswordUsecase(
       authRepository: sl(),
@@ -158,21 +152,15 @@ Future<void> setUpServiceLocator() async {
     () => SignInWithEmailPasswordUsecase(repository: sl()),
   );
   sl.registerLazySingleton(
-    () => SignInWithGoogleUsecase(
+    () => SignInWithPhoneUsecase(
       authRepository: sl(),
       userRepository: sl(),
       cartRepository: sl(),
     ),
   );
-  sl.registerLazySingleton(
-    () => ReAuthenticationUsecase(sl()),
-  );
-  sl.registerLazySingleton(
-    () => ChangePasswordUsecase(sl()),
-  );
-  sl.registerLazySingleton(
-    () => SendCodeToEmailUsecase(sl()),
-  );
+  sl.registerLazySingleton(() => ReAuthenticationUsecase(sl()));
+  sl.registerLazySingleton(() => ChangePasswordUsecase(sl()));
+  sl.registerLazySingleton(() => SendCodeToEmailUsecase(sl()));
   sl.registerLazySingleton(
     () => DeleteAccountUsecase(sl(), sl(), sl(), sl(), sl()),
   );
@@ -187,22 +175,12 @@ Future<void> setUpServiceLocator() async {
     () => UserRemoteDataSourceImpl(sl()),
   );
   // Repository
-  sl.registerLazySingleton<UserRepository>(
-    () => UserRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(sl()));
   // Usecase
-  sl.registerLazySingleton(
-    () => UpdateUserProfileUsecase(repository: sl()),
-  );
-  sl.registerLazySingleton(
-    () => GetUserDataUsecase(repository: sl()),
-  );
-  sl.registerLazySingleton(
-    () => AddAttendanceDateUsecase(repository: sl()),
-  );
-  sl.registerLazySingleton(
-    () => GetListUsersUsecase(repository: sl()),
-  );
+  sl.registerLazySingleton(() => UpdateUserProfileUsecase(repository: sl()));
+  sl.registerLazySingleton(() => GetUserDataUsecase(repository: sl()));
+  sl.registerLazySingleton(() => AddAttendanceDateUsecase(repository: sl()));
+  sl.registerLazySingleton(() => GetListUsersUsecase(repository: sl()));
   // Bloc/Cubit
   sl.registerFactory(() => UserDataCubit(sl(), sl(), sl()));
   sl.registerFactory(() => LeaderBoardCubit(sl()));
@@ -213,9 +191,7 @@ Future<void> setUpServiceLocator() async {
     () => CartRemoteDataSourceImpl(sl()),
   );
   // Repository
-  sl.registerLazySingleton<CartRepository>(
-    () => CartRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<CartRepository>(() => CartRepositoryImpl(sl()));
   // Usecase
   sl.registerLazySingleton(() => AddCartUsecase(sl()));
   sl.registerLazySingleton(() => AddCartBagUsecase(sl()));

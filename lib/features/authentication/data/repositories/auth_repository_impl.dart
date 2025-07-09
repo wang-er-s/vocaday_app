@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../core/errors/exception.dart';
 import '../../../../../core/errors/failure.dart';
@@ -15,7 +15,7 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this.remoteDataSource);
 
   @override
-  Stream<User?> get user => remoteDataSource.user;
+  User? get user => remoteDataSource.user;
 
   @override
   FutureEither<AuthEntity> signUpWithEmailAndPassword(
@@ -28,8 +28,6 @@ class AuthRepositoryImpl implements AuthRepository {
         password,
       );
       return Right(authModel.toEntity());
-    } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -46,8 +44,6 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(
         await remoteDataSource.signInWithEmailAndPassword(email, password),
       );
-    } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -56,13 +52,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  FutureEither<AuthEntity> signInWithGoogle() async {
+  FutureEither<AuthEntity> signInWithPhone(String phone) async {
     try {
-      final authModel = await remoteDataSource.signInWithGoogle();
+      final authModel = await remoteDataSource.signInWithPhone(phone);
       return Right(authModel.toEntity());
-    } on FirebaseAuthException catch (e) {
-      logger.e(e.message, stackTrace: e.stackTrace);
-      return Left(ServerFailure(e.message ?? e.code));
     } on ServerException catch (e) {
       logger.e(e.message);
       return Left(ServerFailure(e.message));
@@ -76,8 +69,6 @@ class AuthRepositoryImpl implements AuthRepository {
   FutureEither<void> signOut() async {
     try {
       return Right(await remoteDataSource.signOut());
-    } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -94,8 +85,6 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(
         await remoteDataSource.reauthenticateWithCredential(email, password),
       );
-    } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -107,8 +96,6 @@ class AuthRepositoryImpl implements AuthRepository {
   FutureEither<void> updatePassword(String password) async {
     try {
       return Right(await remoteDataSource.updatePassword(password));
-    } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -120,8 +107,6 @@ class AuthRepositoryImpl implements AuthRepository {
   FutureEither<void> sendCodeToEmail(String email) async {
     try {
       return Right(await remoteDataSource.sendCodeToEmail(email));
-    } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -133,8 +118,6 @@ class AuthRepositoryImpl implements AuthRepository {
   FutureEither<void> deleteUserAuth() async {
     try {
       return Right(await remoteDataSource.deleteUserAuth());
-    } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

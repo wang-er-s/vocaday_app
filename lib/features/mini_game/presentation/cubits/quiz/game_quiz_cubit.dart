@@ -10,10 +10,8 @@ class GameQuizCubit extends Cubit<GameQuizState> {
   final UpdateUserPointUsecase updateUserPointUsecase;
   final UpdateUserGoldUsecase updateUserGoldUsecase;
 
-  GameQuizCubit(
-    this.updateUserPointUsecase,
-    this.updateUserGoldUsecase,
-  ) : super(const GameQuizState(status: GameQuizStatus.initial));
+  GameQuizCubit(this.updateUserPointUsecase, this.updateUserGoldUsecase)
+    : super(const GameQuizState(status: GameQuizStatus.initial));
 
   Future<void> calculateResult({
     required String uid,
@@ -24,18 +22,19 @@ class GameQuizCubit extends Cubit<GameQuizState> {
 
     final resultPoint = await updateUserPointUsecase((uid, point));
     await resultPoint.fold(
-      (failure) async => emit(state.copyWith(
-        status: GameQuizStatus.error,
-        message: failure.message,
-      )),
+      (failure) async => emit(
+        state.copyWith(status: GameQuizStatus.error, message: failure.message),
+      ),
       (_) async {
         if (gold > 0) {
           final resultGold = await updateUserGoldUsecase((uid, gold));
           resultGold.fold(
-            (failure) => emit(state.copyWith(
-              status: GameQuizStatus.error,
-              message: failure.message,
-            )),
+            (failure) => emit(
+              state.copyWith(
+                status: GameQuizStatus.error,
+                message: failure.message,
+              ),
+            ),
             (_) => emit(state.copyWith(status: GameQuizStatus.success)),
           );
         } else {

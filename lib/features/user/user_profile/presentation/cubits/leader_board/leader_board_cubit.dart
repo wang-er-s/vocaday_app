@@ -7,6 +7,7 @@ import '../../../domain/usecases/get_list_users.dart';
 
 part 'leader_board_state.dart';
 
+/// 排行榜
 class LeaderBoardCubit extends Cubit<LeaderBoardState> {
   final GetListUsersUsecase getListUsersUsecase;
 
@@ -17,22 +18,24 @@ class LeaderBoardCubit extends Cubit<LeaderBoardState> {
 
     final results = await getListUsersUsecase();
 
-    results.fold(
-      (failure) => emit(LeaderBoardErrorState(failure.message)),
-      (list) {
-        final points =
-            List<UserEntity>.from(list).where((e) => e.point >= 0).toList()
-              ..sort((a, b) => b.point.compareTo(a.point))
-              ..take(10);
+    results.fold((failure) => emit(LeaderBoardErrorState(failure.message)), (
+      list,
+    ) {
+      final points =
+          List<UserEntity>.from(list).where((e) => e.point >= 0).toList()
+            ..sort((a, b) => b.point.compareTo(a.point))
+            ..take(10);
 
-        final attendances = List<UserEntity>.from(list)
-            .where((e) => e.attendance.isNotNullOrEmpty)
-            .toList()
-          ..sort((a, b) => b.attendance!.length.compareTo(a.attendance!.length))
-          ..take(10);
+      final attendances =
+          List<UserEntity>.from(
+              list,
+            ).where((e) => e.attendance.isNotNullOrEmpty).toList()
+            ..sort(
+              (a, b) => b.attendance!.length.compareTo(a.attendance!.length),
+            )
+            ..take(10);
 
-        emit(LeaderBoardLoadedState(points: points, attendances: attendances));
-      },
-    );
+      emit(LeaderBoardLoadedState(points: points, attendances: attendances));
+    });
   }
 }

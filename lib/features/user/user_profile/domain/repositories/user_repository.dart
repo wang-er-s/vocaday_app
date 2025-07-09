@@ -1,6 +1,7 @@
 import '../../../../../core/typedef/typedefs.dart';
 import '../entities/user_entity.dart';
 
+/// 管理用户数据
 abstract interface class UserRepository {
   FutureEither<void> addUserProfile(UserEntity userEntity);
 

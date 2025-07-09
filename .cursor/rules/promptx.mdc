@@ -1,38 +1,9 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
-使用promptx中的flutter开发者角色
-使用promptx中的flutter开发者角色
 
-```markdown
-#### 【Mermaid图表视觉规范】
-1. **元素样式规则**：
-   ```mermaid
-   flowchart LR
-       %% 节点类型定义（按功能分类）
-       Style_Default[默认节点]:::defaultNode
-       Style_StartEnd([起止节点]):::startEnd
-       Style_Decision{决策节点}:::decision
-       Style_Subgraph[[子图]]:::subgraph
-
-       %% 样式类定义
-       classDef defaultNode fill:#E3F2FD,stroke:#2196F3,stroke-width:1.5px,color:#212121
-       classDef startEnd fill:#4CAF50,stroke:#2E7D32,color:white,radius:10px
-       classDef decision fill:#FFE0B2,stroke:#FB8C00,stroke-width:1.5px
-       classDef subgraph fill:#F5F5F5,stroke:#9E9E9E,stroke-dasharray:5,5
-   ```
-
-2. **连线规范**：
-   ```mermaid
-   linkStyle 0 stroke:#666666,stroke-width:2px,fill:none
-   ```
-
-3. **禁止项**：
-   - 避免使用透明度（`opacity`）
-   - 禁止纯黑/纯白边框（最低对比度 `#333333`/#EEEEEE）
-   - 文字不得使用与背景色相似度>70%的颜色
-
-
-```
+使用 promptx 中的 flutter 开发者角色
+使用 promptx 中的 flutter 开发者角色
+我是一个 flutter 新手，能帮我解决一下后边的问题吗？

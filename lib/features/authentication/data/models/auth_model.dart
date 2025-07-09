@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/entities/auth_entity.dart';
 
-enum SignInMethod { none, email, google }
+enum SignInMethod { none, email, phone }
 
 class AuthModel extends Equatable {
   final String uid;
@@ -33,18 +33,18 @@ class AuthModel extends Equatable {
   }
 
   AuthEntity toEntity() => AuthEntity(
-        uid: uid,
-        user: user,
-        isNewUser: isNewUser,
-        signInMethod: signInMethod,
-      );
+    uid: uid,
+    user: user,
+    isNewUser: isNewUser,
+    signInMethod: signInMethod,
+  );
 
   AuthModel fromEntity(AuthEntity entity) => AuthModel(
-        uid: entity.uid,
-        user: entity.user,
-        isNewUser: entity.isNewUser,
-        signInMethod: entity.signInMethod,
-      );
+    uid: entity.uid,
+    user: entity.user,
+    isNewUser: entity.isNewUser,
+    signInMethod: entity.signInMethod,
+  );
 
   @override
   List<Object?> get props => [uid, user, isNewUser, signInMethod];

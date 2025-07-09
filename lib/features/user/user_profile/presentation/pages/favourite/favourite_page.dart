@@ -38,17 +38,13 @@ class _FavouritePageState extends State<FavouritePage> {
     Duration delay = Durations.long4,
   }) async {
     Navigators().showLoading(
-      tasks: [
-        context.read<WordFavouriteCubit>().getAllFavouriteWords(),
-      ],
+      tasks: [context.read<WordFavouriteCubit>().getAllFavouriteWords()],
       delay: delay,
     );
   }
 
   void _onOpenWordDetail(BuildContext context, WordEntity entity) {
-    context.showBottomSheet(
-      child: WordDetailBottomSheet(wordEntity: entity),
-    );
+    context.showBottomSheet(child: WordDetailBottomSheet(wordEntity: entity));
   }
 
   Future<void> _onSearch(BuildContext context, String input) async {
@@ -62,9 +58,10 @@ class _FavouritePageState extends State<FavouritePage> {
   }
 
   Future<void> _onRemoveItem(String word) async {
-    await Navigators().showLoading(tasks: [
-      sl<SharedPrefManager>().removeFavouriteWord(word),
-    ], delay: Durations.medium2);
+    await Navigators().showLoading(
+      tasks: [sl<SharedPrefManager>().removeFavouriteWord(word)],
+      delay: Durations.medium2,
+    );
     favouriteNotifer.value = List<WordEntity>.from(favouriteNotifer.value)
       ..removeWhere((e) => e.word == word);
   }
@@ -75,7 +72,7 @@ class _FavouritePageState extends State<FavouritePage> {
       subtitle: LocaleKeys.favourite_clear_all_favourites.tr(),
       acceptText: LocaleKeys.common_accept.tr(),
       onAccept: () async {
-        final uid = context.read<AuthBloc>().state.user?.uid;
+        final uid = context.read<AuthBloc>().state.user?.id;
         if (uid != null) {
           await context.read<WordFavouriteCubit>().removeAllFavourites(uid);
           favouriteNotifer.value = [];
@@ -85,10 +82,11 @@ class _FavouritePageState extends State<FavouritePage> {
   }
 
   Future<void> _onSyncData(BuildContext context) async {
-    final uid = context.read<AuthBloc>().state.user?.uid;
+    final uid = context.read<AuthBloc>().state.user?.id;
     if (uid != null) {
-      final result =
-          await context.read<WordFavouriteCubit>().syncFavourites(uid);
+      final result = await context.read<WordFavouriteCubit>().syncFavourites(
+        uid,
+      );
       if (result) {
         Navigators().showMessage(
           LocaleKeys.favourite_sync_data_success.tr(),
@@ -117,9 +115,7 @@ class _FavouritePageState extends State<FavouritePage> {
         backgroundColor: context.backgroundColor,
         appBar: AppBarCustom(
           leading: BackButton(
-            style: ButtonStyle(
-              iconSize: WidgetStateProperty.all(24.r),
-            ),
+            style: ButtonStyle(iconSize: WidgetStateProperty.all(24.r)),
           ),
           textTitle: LocaleKeys.favourite_favourites.tr(),
           action: _buildPopupMenu(context),
@@ -152,9 +148,7 @@ class _FavouritePageState extends State<FavouritePage> {
                         onSearch: (value) => _onSearch(context, value),
                       ),
                     ),
-                    Expanded(
-                      child: _buildFavourites(),
-                    ),
+                    Expanded(child: _buildFavourites()),
                   ],
                 ),
               );
@@ -203,10 +197,7 @@ class _FavouritePageState extends State<FavouritePage> {
         children: [
           Padding(
             padding: EdgeInsets.only(right: 15.w),
-            child: Icon(
-              icon,
-              color: context.theme.primaryColor,
-            ),
+            child: Icon(icon, color: context.theme.primaryColor),
           ),
           Expanded(
             child: TextCustom(

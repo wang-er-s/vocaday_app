@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../app/managers/navigation.dart';
 import '../../../../../app/translations/translations.dart';
@@ -25,8 +25,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ChangePasswordUsecase changePasswordUsecase;
   final DeleteAccountUsecase deleteAccountUsecase;
 
-  StreamSubscription? _streamSubscription;
-
   AuthBloc(
     this.authStateChangedUsecase,
     this.signOutUsecase,
@@ -45,10 +43,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RequestSignOutEvent>((event, emit) async {
       final result = await signOutUsecase();
       result.fold(
-        (failure) => Navigators().showMessage(
-          failure.message,
-          type: MessageType.error,
-        ),
+        (failure) =>
+            Navigators().showMessage(failure.message, type: MessageType.error),
         (_) => emit(const UnauthenticatedState()),
       );
     });
@@ -56,13 +52,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RequestChangePasswordEvent>((event, emit) async {
       emit((state as AuthenticatedState).copyWith(isAuthenticating: true));
 
-      final reAuth =
-          await reAuthenticationUsecase((event.email, event.currPassword));
+      final reAuth = await reAuthenticationUsecase((
+        event.email,
+        event.currPassword,
+      ));
       await reAuth.fold(
-        (failure) => Navigators().showMessage(
-          failure.message,
-          type: MessageType.error,
-        ),
+        (failure) =>
+            Navigators().showMessage(failure.message, type: MessageType.error),
         (_) async {
           if (!Validator.validatePassword(event.newPassword)) {
             Navigators().showMessage(
@@ -99,19 +95,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RequestDeleteAccountEvent>((event, emit) async {
       await Navigators().popDialog();
       if (event.entity.method == SignInMethod.email.name) {
-        final reAuth =
-            await reAuthenticationUsecase((event.entity.email, event.password));
+        final reAuth = await reAuthenticationUsecase((
+          event.entity.email,
+          event.password,
+        ));
         await reAuth.fold(
           (fail) =>
               Navigators().showMessage(fail.message, type: MessageType.error),
           (_) async {
-            await Navigators()
-                .showLoading(tasks: [_deleteUserAccount(event.entity.uid)]);
+            await Navigators().showLoading(
+              tasks: [_deleteUserAccount(event.entity.uid)],
+            );
           },
         );
       } else {
-        await Navigators()
-            .showLoading(tasks: [_deleteUserAccount(event.entity.uid)]);
+        await Navigators().showLoading(
+          tasks: [_deleteUserAccount(event.entity.uid)],
+        );
       }
     });
   }
@@ -124,21 +124,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (_) async {
         await Navigators().popDialog(); // Pop changepasswordpage
         add(RequestSignOutEvent()); // SignOut & navigate
-        Navigators().showMessage(LocaleKeys.auth_deleted_your_account.tr(),
-            type: MessageType.success);
+        Navigators().showMessage(
+          LocaleKeys.auth_deleted_your_account.tr(),
+          type: MessageType.success,
+        );
       },
     );
   }
 
   void initAuthStream() {
-    _streamSubscription ??= authStateChangedUsecase.user.listen((user) {
-      add(AuthStateChangedEvent(user));
-    });
-  }
-
-  @override
-  Future<void> close() {
-    _streamSubscription?.cancel();
-    return super.close();
+    add(AuthStateChangedEvent(authStateChangedUsecase.user));
   }
 }

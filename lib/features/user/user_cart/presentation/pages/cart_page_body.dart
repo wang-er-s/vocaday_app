@@ -26,18 +26,18 @@ class CartPageBody extends StatelessWidget {
   const CartPageBody({super.key});
 
   Future<void> _onRefresh(BuildContext context) async {
-    final uid = context.read<AuthBloc>().state.user?.uid;
+    final uid = context.read<AuthBloc>().state.user?.id;
     if (uid != null) {
       await context.read<CartCubit>().getCart(uid);
-      Navigators().showMessage(LocaleKeys.profile_everything_is_up_to_date.tr(),
-          type: MessageType.success);
+      Navigators().showMessage(
+        LocaleKeys.profile_everything_is_up_to_date.tr(),
+        type: MessageType.success,
+      );
     }
   }
 
   Future<void> _onOpenCartBottomSheet(BuildContext context) async {
-    await context.showBottomSheet(
-      child: WordBagBottomSheetPage(),
-    );
+    await context.showBottomSheet(child: WordBagBottomSheetPage());
   }
 
   @override
@@ -71,11 +71,16 @@ class CartPageBody extends StatelessWidget {
                       onRefresh: () => _onRefresh(context),
                       child: SingleChildScrollView(
                         child: Column(
-                          children:
-                              cartEntity.bags.mapIndexed((index, element) {
+                          children: cartEntity.bags.mapIndexed((
+                            index,
+                            element,
+                          ) {
                             final wordItems = wordList
-                                .where((e) => cartEntity.bags[index].words
-                                    .contains(e.word))
+                                .where(
+                                  (e) => cartEntity.bags[index].words.contains(
+                                    e.word,
+                                  ),
+                                )
                                 .toList();
                             return _CartBagWidget(
                               index: index,
@@ -109,9 +114,7 @@ class _CartBagWidget extends StatelessWidget {
   final bagNameNotifier = ValueNotifier("");
 
   void _onTapWordCartItem(BuildContext context, WordEntity entity) {
-    context.showBottomSheet(
-      child: WordDetailBottomSheet(wordEntity: entity),
-    );
+    context.showBottomSheet(child: WordDetailBottomSheet(wordEntity: entity));
   }
 
   void _onSelectMenu(CartBagMenu item, BuildContext context) {
@@ -137,14 +140,16 @@ class _CartBagWidget extends StatelessWidget {
       title: LocaleKeys.cart_mark_all_as_known.tr(),
       subtitle: LocaleKeys.cart_mark_all_as_known_content.tr(),
       onAccept: () async {
-        final uid = context.read<AuthBloc>().state.user?.uid;
+        final uid = context.read<AuthBloc>().state.user?.id;
         if (uid != null) {
           final wordsOfBag = cartEntity.bags[index].words;
           await Future.wait([
             context.read<KnownWordCubit>().addKnownWordList(uid, wordsOfBag),
-            context
-                .read<CartCubit>()
-                .deleteCartBag(uid, cartEntity, cartEntity.bags[index]),
+            context.read<CartCubit>().deleteCartBag(
+              uid,
+              cartEntity,
+              cartEntity.bags[index],
+            ),
           ]);
         }
       },
@@ -164,16 +169,16 @@ class _CartBagWidget extends StatelessWidget {
       acceptText: LocaleKeys.common_save.tr(),
       onAccept: () async {
         final name = bagNameNotifier.value.trim();
-        final uid = context.read<AuthBloc>().state.user?.uid;
+        final uid = context.read<AuthBloc>().state.user?.id;
         if (uid != null) {
           await Navigators().showLoading(
             tasks: [
               context.read<CartCubit>().renameCartBag(
-                    uid,
-                    name.isEmpty ? LocaleKeys.cart_my_bag_default.tr() : name,
-                    cartEntity,
-                    cartEntity.bags[index],
-                  ),
+                uid,
+                name.isEmpty ? LocaleKeys.cart_my_bag_default.tr() : name,
+                cartEntity,
+                cartEntity.bags[index],
+              ),
             ],
           );
         }
@@ -184,32 +189,42 @@ class _CartBagWidget extends StatelessWidget {
   Future<void> _onRemoveCartBag(BuildContext context) async {
     Navigators().showDialogWithButton(
       title: LocaleKeys.cart_remove_cart_bag.tr(),
-      subtitle: LocaleKeys.cart_remove_cart_bag_content.tr(args: [
-        LocaleKeys.activity_word.plural(cartEntity.bags[index].words.length)
-      ]),
+      subtitle: LocaleKeys.cart_remove_cart_bag_content.tr(
+        args: [
+          LocaleKeys.activity_word.plural(cartEntity.bags[index].words.length),
+        ],
+      ),
       onAccept: () async {
-        final uid = context.read<AuthBloc>().state.user?.uid;
+        final uid = context.read<AuthBloc>().state.user?.id;
         if (uid != null) {
-          await context
-              .read<CartCubit>()
-              .deleteCartBag(uid, cartEntity, cartEntity.bags[index]);
+          await context.read<CartCubit>().deleteCartBag(
+            uid,
+            cartEntity,
+            cartEntity.bags[index],
+          );
         }
       },
     );
   }
 
   Future<void> _onRemoveWordItem(
-      BuildContext context, WordEntity wordEntity) async {
+    BuildContext context,
+    WordEntity wordEntity,
+  ) async {
     Navigators().showDialogWithButton(
       title: LocaleKeys.cart_remove_word_title.tr(),
       subtitle: LocaleKeys.cart_remove_word_content.tr(
         args: [wordEntity.word.toLowerCase()],
       ),
       onAccept: () async {
-        final uid = context.read<AuthBloc>().state.user?.uid;
+        final uid = context.read<AuthBloc>().state.user?.id;
         if (uid != null) {
           await context.read<CartCubit>().deleteWordItem(
-              uid, wordEntity, cartEntity, cartEntity.bags[index]);
+            uid,
+            wordEntity,
+            cartEntity,
+            cartEntity.bags[index],
+          );
         }
       },
     );
@@ -220,13 +235,15 @@ class _CartBagWidget extends StatelessWidget {
       title: LocaleKeys.cart_expand_this_bag.tr(),
       subtitle: LocaleKeys.cart_expand_this_bag_content.tr(),
       onAccept: () async {
-        final uid = context.read<AuthBloc>().state.user?.uid;
+        final uid = context.read<AuthBloc>().state.user?.id;
         if (uid != null) {
           Navigators().showLoading(
             tasks: [
-              context
-                  .read<CartCubit>()
-                  .expandCartBag(uid, cartEntity, cartEntity.bags[index])
+              context.read<CartCubit>().expandCartBag(
+                uid,
+                cartEntity,
+                cartEntity.bags[index],
+              ),
             ],
             onFinish: () =>
                 Navigators().currentContext!.read<CartBagCubit>().getCartBag(),
@@ -239,8 +256,10 @@ class _CartBagWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 20.w)
-          .copyWith(top: index == 0 ? 20.h : null),
+      margin: EdgeInsets.symmetric(
+        vertical: 8.h,
+        horizontal: 20.w,
+      ).copyWith(top: index == 0 ? 20.h : null),
       padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
@@ -251,7 +270,7 @@ class _CartBagWidget extends StatelessWidget {
             offset: const Offset(0, 1),
             blurRadius: 2,
             spreadRadius: 2,
-          )
+          ),
         ],
       ),
       child: Column(
@@ -347,15 +366,9 @@ class _CartBagWidget extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.only(right: 15.w),
-            child: Icon(
-              icon,
-              color: context.theme.primaryColor,
-            ),
+            child: Icon(icon, color: context.theme.primaryColor),
           ),
-          TextCustom(
-            text,
-            style: context.textStyle.bodyS.bw,
-          ),
+          TextCustom(text, style: context.textStyle.bodyS.bw),
         ],
       ),
     );
